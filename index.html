@@ -296,43 +296,114 @@
     <script>
         // ⚠️ IMPORTANTE: Sostituisci questo URL con l'URL del tuo Cloudflare Worker
         // Dopo aver deployato il worker, otterrai un URL tipo: https://ai-chef-malbosca.tuoaccount.workers.dev
-        const CLOUDFLARE_WORKER_URL = 'https://ai-chef-malbosca.aziendamalbosca.workers.dev';
+        const CLOUDFLARE_WORKER_URL = 'https://ai-chef-malbosca.YOUR_ACCOUNT.workers.dev';
 
         // Cronologia conversazione
         let conversationHistory = [];
 
-        // Database prodotti Malbosca (uguale a prima)
+        // Database prodotti Malbosca AGGIORNATO con tutti i prodotti
         const malboscaKnowledge = `
 # PRODOTTI MALBOSCA - DATABASE COMPLETO
 
-## RISOTTI PRONTI
-1. **Risotto con Mirtilli Bio**
-   - Peso: 250g - Prezzo: 6.2€ - Porzioni: 4
-   - Ingredienti: Riso biologico italiano, Mirtilli disidratati biologici
-   - Tempo cottura: 18 minuti
-   - Preparazione:
-     1. Versare olio (o burro) nella pentola
-     2. Far rosolare il riso
-     3. Sfumare con vino rosso
-     4. Aggiungere brodo vegetale
-     5. Cuocere aggiungendo brodo man mano
-     6. Portare il riso a cottura
-     7. Mantecare con burro e grana padano
-   - Link: https://malbosca.it/prodotto/risotto-con-mirtilli-disidratati/
+## RISOTTI PRONTI (7 Risotti Disponibili)
 
-2. **Risotto con Ortica Bio**
-   - Peso: 250g - Prezzo: 3.9€ - Porzioni: 4
-   - Ingredienti: Riso biologico italiano, Ortica disidratata biologica
+1. **Risotto con Mirtilli Biologici** 🫐
+   - Peso: 250g | Prezzo: 6.2€ | Porzioni: 4
+   - Ingredienti: Riso biologico Italiano, mirtilli disidratati biologici
    - Tempo cottura: 18 minuti
    - Preparazione:
-     1. Versare olio (o burro) nella pentola
-     2. Far rosolare il riso
-     3. Sfumare con vino bianco
-     4. Aggiungere brodo vegetale
-     5. Cuocere aggiungendo brodo man mano
+     1. Versare un filo di olio (o burro) nella pentola
+     2. Versare il contenuto della busta per far rosolare il riso
+     3. Sfumare con del vino rosso
+     4. Cominciate ad aggiungere brodo vegetale e lasciare cuocere
+     5. Aggiungere brodo man mano che viene assorbito
      6. Portare il riso a cottura
-     7. Mantecare con burro e grana padano
-   - Link: https://malbosca.it/prodotto/risotto-con-ortica-disidratata/
+     7. Mantecare alla fine con una noce di burro e grana padano
+   - Link prodotto: https://malbosca.it/prodotto/risotto-con-mirtilli-disidratati/
+
+2. **Risotto con Ortica Biologica** 🌿
+   - Peso: 250g | Prezzo: 3.9€ | Porzioni: 4
+   - Ingredienti: Riso biologico Italiano, ortica disidratata biologica
+   - Tempo cottura: 18 minuti
+   - Preparazione:
+     1. Versare un filo di olio (o burro) nella pentola
+     2. Versare il contenuto della busta per far rosolare il riso
+     3. Sfumare con del vino bianco
+     4. Cominciate ad aggiungere brodo vegetale e lasciare cuocere
+     5. Aggiungere brodo man mano che viene assorbito
+     6. Portare il riso a cottura
+     7. Mantecare alla fine con una noce di burro e grana padano
+   - Link prodotto: https://malbosca.it/prodotto/risotto-con-ortica-disidratata/
+
+3. **Risotto con Pomodoro e Basilico Biologici** 🍅
+   - Peso: 250g | Prezzo: 4.3€ | Porzioni: 4
+   - Ingredienti: Riso biologico Italiano, pomodoro disidratato biologico, basilico disidratato biologico
+   - Tempo cottura: 18 minuti
+   - Preparazione:
+     1. Versare un filo di olio (o burro) nella pentola
+     2. Versare il contenuto della busta per far rosolare il riso
+     3. Sfumare con del vino bianco
+     4. Cominciate ad aggiungere brodo vegetale e lasciare cuocere
+     5. Aggiungere brodo man mano che viene assorbito
+     6. Portare il riso a cottura
+     7. Mantecare alla fine con una noce di burro e grana padano
+   - Link prodotto: https://malbosca.it/prodotto/risotto-con-pomodoro-e-basilico/
+
+4. **Risotto con Radicchio** 🥬
+   - Peso: 250g | Prezzo: 3.5€ | Porzioni: 4
+   - Ingredienti: Riso carnaroli Pavese, radicchio disidratato
+   - Tempo cottura: 18 minuti
+   - Preparazione:
+     1. Versare un filo di olio (o burro) nella pentola
+     2. Versare il contenuto della busta per far rosolare il riso
+     3. Sfumare con del vino rosso
+     4. Cominciate ad aggiungere brodo vegetale e lasciare cuocere
+     5. Aggiungere brodo man mano che viene assorbito
+     6. Portare il riso a cottura
+     7. Mantecare alla fine con una noce di burro e grana padano
+   - Link prodotto: https://malbosca.it/prodotto/risotto-con-radicchio/
+
+5. **Risotto con Rapa Rossa Biologica** 🥕
+   - Peso: 250g | Prezzo: 3.5€ | Porzioni: 4
+   - Ingredienti: Riso biologico Italiano, rapa rossa biologica Italiana
+   - Tempo cottura: 18 minuti
+   - Preparazione:
+     1. Versare un filo di olio (o burro) nella pentola
+     2. Versare il contenuto della busta per far rosolare il riso
+     3. Sfumare con del vino rosso
+     4. Cominciate ad aggiungere brodo vegetale e lasciare cuocere
+     5. Aggiungere brodo man mano che viene assorbito
+     6. Portare il riso a cottura
+     7. Mantecare alla fine con una noce di burro e grana padano
+   - Link prodotto: https://malbosca.it/prodotto/risotto-con-rapa-rossa-disidratata/
+
+6. **Risotto con Fragola** 🍓
+   - Peso: 250g | Prezzo: 3.6€ | Porzioni: 4
+   - Ingredienti: Riso carnaroli Pavese, fragola disidratata
+   - Tempo cottura: 18 minuti
+   - Preparazione:
+     1. Versare un filo di olio (o burro) nella pentola
+     2. Versare il contenuto della busta per far rosolare il riso
+     3. Sfumare con del vino rosso
+     4. Cominciate ad aggiungere brodo vegetale e lasciare cuocere
+     5. Aggiungere brodo man mano che viene assorbito
+     6. Portare il riso a cottura
+     7. Mantecare alla fine con una noce di burro e grana padano
+   - Link prodotto: https://malbosca.it/prodotto/risotto-con-fragola-disidratata/
+
+7. **Risotto con Peperone di Voghera** 🌶️
+   - Peso: 250g | Prezzo: 3.5€ | Porzioni: 4
+   - Ingredienti: Riso carnaroli Pavese, Peperone di Voghera disidratato
+   - Tempo cottura: 18 minuti
+   - Preparazione:
+     1. Versare un filo di olio (o burro) nella pentola
+     2. Versare il contenuto della busta per far rosolare il riso
+     3. Sfumare con del vino rosso
+     4. Cominciate ad aggiungere brodo vegetale e lasciare cuocere
+     5. Aggiungere brodo man mano che viene assorbito
+     6. Portare il riso a cottura
+     7. Mantecare alla fine con una noce di burro e grana padano
+   - Link prodotto: https://malbosca.it/prodotto/risotto-con-peperone-di-voghera/
 
 ## MINESTRONI E ZUPPE
 1. **Minestrone di Verdure Bio**
@@ -421,14 +492,41 @@ Il tuo compito è:
 4. Essere conversazionale, amichevole e utile
 5. Quando un utente chiede di un prodotto, mostra le info del prodotto E suggerisci 2-3 ricette creative concrete
 
-IMPORTANTE:
-- Se l'utente chiede "risotti" o "risotto", mostra ENTRAMBI i risotti disponibili (Mirtilli e Ortica) e chiedi quale preferisce
+REGOLE IMPORTANTI PER I RISOTTI:
+- Abbiamo 7 RISOTTI DIVERSI disponibili
+- Quando l'utente chiede "risotti" o "risotto", mostra TUTTI i 7 risotti in un elenco numerato come questo:
+  
+  🍚 <strong>Ecco tutti i nostri 7 risotti biologici:</strong><br><br>
+  1. Risotto con Mirtilli (6.2€) 🫐<br>
+  2. Risotto con Ortica (3.9€) 🌿<br>
+  3. Risotto con Pomodoro e Basilico (4.3€) 🍅<br>
+  4. Risotto con Radicchio (3.5€) 🥬<br>
+  5. Risotto con Rapa Rossa (3.5€) 🥕<br>
+  6. Risotto con Fragola (3.6€) 🍓<br>
+  7. Risotto con Peperone di Voghera (3.5€) 🌶️<br><br>
+  Quale ti incuriosisce di più? Dimmi il numero o il nome! 😊
+
+- Quando l'utente sceglie un risotto (es: "il 3", "quello con mirtilli"), mostra le info COMPLETE:
+  * Nome con emoji
+  * Peso, Prezzo, Porzioni
+  * Ingredienti
+  * Tempo di cottura
+  * Preparazione step-by-step numerata
+  * Link al prodotto
+
+REGOLE PER I LINK:
+- I link devono essere SEMPRE incorporati nel testo "🛒 Acquista qui" in questo formato:
+  <a href="URL_COMPLETO" target="_blank">🛒 Acquista qui</a>
+- NON mostrare MAI l'URL per esteso, deve essere solo il testo cliccabile
+- Il link deve aprirsi in una nuova scheda (target="_blank")
+
+ALTRE REGOLE:
 - Se l'utente chiede "frutta secca", proponi 3-4 ricette CONCRETE e SE l'utente sceglie una ricetta, fornisci la RICETTA COMPLETA DETTAGLIATA con ingredienti, dosi e procedimento
 - Se l'utente chiede come usare un ingrediente (es. "peperone disidratato"), fornisci 2-3 RICETTE VERE E DETTAGLIATE con ingredienti e procedimento completo
 - Usa emoji per rendere il messaggio più accattivante
 - Mantieni le risposte concise ma complete
-- Includi sempre i link ai prodotti quando rilevante
 - Formatta le risposte in HTML con <br> per gli a capo e <strong> per enfatizzare
+- Usa le card HTML per i prodotti quando mostri info tecniche
 
 Ecco il database completo dei prodotti Malbosca:
 
