@@ -131,6 +131,41 @@
             transform: translateY(-2px);
         }
 
+        /* Stile per i pulsanti prodotto */
+        .product-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .product-btn {
+            background: #f0f8f4;
+            border: 2px solid #2ecc71;
+            color: #27ae60;
+            padding: 12px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-align: left;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .product-btn:hover {
+            background: #2ecc71;
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .product-btn .price {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
         .input-container {
             padding: 20px;
             background: white;
@@ -429,7 +464,7 @@
                 </div>
             </div>
             <div class="quick-suggestions">
-                <button class="suggestion-btn" onclick="sendSuggestion('Mostrami i vostri risotti')">🍚 I vostri Risotti</button>
+                <button class="suggestion-btn" onclick="showRisottiList()">🍚 I vostri Risotti</button>
                 <button class="suggestion-btn" onclick="sendSuggestion('Come preparo lo spezzatino?')">🍲 Spezzatino</button>
                 <button class="suggestion-btn" onclick="sendSuggestion('Ricetta con le mandorle')">🌰 Mandorle</button>
                 <button class="suggestion-btn" onclick="sendSuggestion('Sorprendimi!')">✨ Sorprendimi</button>
@@ -495,44 +530,136 @@
         let emailCaptured = false;
         let conversationHistory = [];
 
-        // System prompt con conoscenza dei prodotti Malbosca
+        // Database risotti completo
+        const risottiMalbosca = [
+            {
+                nome: "Risotto con Mirtilli",
+                prezzo: "6.2 €",
+                peso: "250 g",
+                ingredienti: "Riso biologico Italiano, mirtilli disidratati biologici",
+                vino: "vino rosso"
+            },
+            {
+                nome: "Risotto con Ortica",
+                prezzo: "3.9 €",
+                peso: "250 g",
+                ingredienti: "Riso biologico Italiano, ortica disidratata biologica",
+                vino: "vino bianco"
+            },
+            {
+                nome: "Risotto con Pomodoro e Basilico",
+                prezzo: "4.3 €",
+                peso: "250 g",
+                ingredienti: "Riso biologico Italiano, pomodoro disidratato biologico, basilico disidratato biologico",
+                vino: "vino bianco"
+            },
+            {
+                nome: "Risotto con Radicchio",
+                prezzo: "3.5 €",
+                peso: "250 g",
+                ingredienti: "Riso carnaroli Pavese, radicchio disidratato",
+                vino: "vino rosso"
+            },
+            {
+                nome: "Risotto con Rapa Rossa",
+                prezzo: "3.5 €",
+                peso: "250 g",
+                ingredienti: "Riso biologico Italiano, rapa rossa biologica Italiana",
+                vino: "vino bianco"
+            },
+            {
+                nome: "Risotto con Fragola",
+                prezzo: "3.6 €",
+                peso: "250 g",
+                ingredienti: "Riso carnaroli Pavese, fragola disidratata",
+                vino: "vino bianco"
+            },
+            {
+                nome: "Risotto con Peperone di Voghera",
+                prezzo: "3.5 €",
+                peso: "250 g",
+                ingredienti: "Riso carnaroli Pavese, Peperone di Voghera disidratato",
+                vino: "vino bianco"
+            }
+        ];
+
+        // System prompt CORRETTO con informazioni precise
         const SYSTEM_PROMPT = `Sei l'AI Chef Malbosca, un esperto chef italiano specializzato in cucina biologica e prodotti di qualità.
 
 CATALOGO PRODOTTI MALBOSCA (da suggerire quando pertinente):
 
-🍚 RISOTTI BIOLOGICI PRONTI (250g, 18 min cottura):
-- Risotto con Mirtilli Bio (6.2€) - riso italiano + mirtilli disidratati
-- Risotto con Ortica Bio (3.9€) - riso italiano + ortica disidratata
-- Risotto con Pomodoro e Basilico Bio (4.3€)
-- Risotto con Radicchio (3.5€) - riso carnaroli Pavese
-- Risotto con Rapa Rossa Bio (3.5€)
-- Risotto con Fragola (3.6€)
-- Risotto con Peperone di Voghera (3.5€)
+🍚 RISOTTI BIOLOGICI PRONTI (250 g, 4 porzioni, 18 min cottura):
+1. Risotto con Mirtilli Bio (6.2 €) - riso italiano + mirtilli disidratati
+2. Risotto con Ortica Bio (3.9 €) - riso italiano + ortica disidratata
+3. Risotto con Pomodoro e Basilico Bio (4.3 €) - riso italiano + pomodoro e basilico
+4. Risotto con Radicchio (3.5 €) - riso carnaroli Pavese + radicchio
+5. Risotto con Rapa Rossa Bio (3.5 €) - riso italiano + rapa rossa
+6. Risotto con Fragola (3.6 €) - riso carnaroli Pavese + fragola
+7. Risotto con Peperone di Voghera (3.5 €) - riso carnaroli + peperone
 
-Preparazione risotti: rosolare in olio/burro, sfumare con vino bianco (rosso per mirtilli), aggiungere brodo gradualmente, mantecare con burro e grana.
+**Preparazione risotti:**
+1. Versare un filo di olio (o burro) nella pentola
+2. Versare il contenuto della busta per far rosolare il riso
+3. Sfumare con del vino (rosso per mirtilli e radicchio, bianco per gli altri)
+4. Aggiungere brodo vegetale e lasciare cuocere
+5. Aggiungere brodo man mano che viene assorbito
+6. Portare il riso a cottura (circa 18 minuti)
+7. Mantecare alla fine con una noce di burro e grana padano
 
 🥘 ZUPPE E MINESTRONI:
-- Minestrone di Verdure Bio (80g, 6€, 4 porzioni) - ingredienti: zucca, zucchina, carota, pomodoro, verza, erbette, cipolla, basilico. Cottura: 45-50 min in 1.5L acqua. Trucco: aggiungere legumi o pasta.
-- Zuppa di Cavolo Nero e Riccio (250g, 4.5€, 4 porzioni) - farro monococco, zucca, cavolo nero/riccio, porro. Cottura: 30-40 min.
+- **Minestrone di Verdure Bio** (80 g, 6 €, 4 porzioni)
+  Ingredienti: zucca, zucchina, carota, pomodoro, verza, erbette, cipolla, basilico
+  Preparazione: versare 1,5L acqua in pentola, aggiungere verdure, cuocere 45-50 min, servire con olio EVO
+  Trucco: aggiungere legumi o pasta corta a piacimento
+  Link: https://malbosca.it/prodotto/minestrone-di-verdure-biologiche/
 
-🥬 VERDURE DISIDRATATE:
-- Soffritto Bio (50g, 3.5€) - carota, sedano, cipolla
-- Radicchio Disidratato (30g, 2.5€) - ottimo con gorgonzola, noci, aceto balsamico
-- Peperone Disidratato Bio (30g, 2.9€)
-- Cipolla Disidratata Bio (30g, 3.3€)
-- Pomodoro Disidratato Bio (30g, 2.9€)
+- **Zuppa di Cavolo Nero e Riccio** (250 g, 4.5 €, 4 porzioni)
+  Ingredienti: farro monococco, zucca, cavolo nero/riccio, porro
+  Cottura: 30-40 min in 1,5L acqua
+  Link: https://malbosca.it/prodotto/zuppa-di-cavolo-nero-e-cavolo-riccio/
 
-🍳 FRITTATE PRONTE (70g, 3€):
+🥬 VERDURE DISIDRATATE - COME USARLE CORRETTAMENTE:
+**IMPORTANTE**: Le verdure disidratate NON si reidratano in acqua e poi si cuociono. Si cuociono DIRETTAMENTE con olio e acqua.
+
+**Metodo corretto di preparazione:**
+1. Mettere in una pentola antiaderente 4-5 cucchiai d'olio
+2. Versare il contenuto della busta di verdura disidratata
+3. Mescolare a fuoco basso per distribuire nell'olio
+4. Aggiungere mezzo bicchiere d'acqua
+5. Lasciare sobbollire per 10-15 minuti fino a quando sono morbide
+
+**Prodotti disponibili:**
+- Radicchio Disidratato (30 g, 2.5 €) - per risotti, pasta, insalate cotte. Ottimo con gorgonzola, noci, aceto balsamico
+- Peperone Disidratato Bio (30 g, 2.9 €) - per risotti, sughi
+- Cipolla Disidratata Bio (30 g, 3.3 €) - per sughi, soffritti
+- Pomodoro Disidratato Bio (30 g, 2.9 €) - per insalate, bruschette, condimenti
+
+- **Soffritto Bio** (50 g, 3.5 €) - carota, sedano, cipolla
+  Preparazione: scaldare 2 cucchiai d'olio, aggiungere 2 cucchiaini di soffritto, mescolare, aggiungere mezzo bicchiere d'acqua, cuocere 10 minuti a fuoco basso
+  Perfetto per: ragù, risotti, sughi, brasati, zuppe
+  Link: https://malbosca.it/prodotto/soffritto-classico-pronto/
+
+🍳 FRITTATE PRONTE (70 g, 3 €, 4 porzioni):
 - Frittata Cipolle e Patate Bio
 - Frittata Zucchine e Cipolle Bio
-Preparazione: reidratare in padella 30 min, aggiungere 5 uova sbattute con parmigiano.
+
+**Preparazione frittate:**
+1. Mettere 4-5 cucchiai d'olio in padella antiaderente
+2. Versare il contenuto della busta
+3. Mescolare a fuoco basso
+4. Ricoprire con acqua le verdure
+5. Sobbollire 30 minuti fino a morbidezza
+6. Sbattere 5 uova con parmigiano e sale
+7. Versare le uova nella padella
+8. Cuocere la frittata
 
 🌰 FRUTTA SECCA:
-- Mandorle Dolci Siciliane (230g: 6.1€ / 500g: 11.2€) - tostate
-- Noci Italiane (230g: 6€ / 500g: 11.5€) - tostate
-- Nocciole IGP Piemonte (230g: 8.8€ / 500g: 17.5€) - blanches calibro 14-15
+- **Mandorle Dolci Siciliane** (230 g: 6.1 € / 500 g: 11.2 €) - tostate
+- **Noci Italiane** (230 g: 6 € / 500 g: 11.5 €) - tostate
+- **Nocciole IGP Piemonte** (230 g: 8.8 € / 500 g: 17.5 €) - blanches calibro 14-15, senza pellicine
 
-LINK PRODOTTI: https://malbosca.it/prodotto/[nome-prodotto]/
+Usi: snack, dolci, granola, pesto, gratinate
+Link: https://malbosca.it/prodotto/noci-sgusciate/
 
 IL TUO COMPITO:
 1. Rispondi a QUALSIASI domanda culinaria (spezzatino, carbonara, dolci, ecc.)
@@ -541,13 +668,42 @@ IL TUO COMPITO:
 4. Sii amichevole, professionale e appassionato di cucina italiana
 5. Usa emoji in modo naturale ma senza esagerare
 6. Se chiede specificamente sui prodotti Malbosca, dai info complete con prezzi e link
+7. IMPORTANTE: Quando parli delle verdure disidratate, spiega SEMPRE il metodo corretto (cuocere direttamente con olio e acqua)
 
 Esempi:
-- "Come preparo lo spezzatino?" → dai ricetta completa dello spezzatino, poi suggerisci: "Per un soffritto perfetto, prova il nostro Soffritto Bio (3.5€) con carota, sedano e cipolla già pronti!"
-- "Ricetta con mandorle" → dai 2-3 ricette, poi: "Le nostre Mandorle Dolci Siciliane (230g, 6.1€) sono perfette, già tostate!"
+- "Come preparo lo spezzatino?" → dai ricetta completa dello spezzatino, poi suggerisci: "Per un soffritto perfetto, prova il nostro Soffritto Bio (3.5€) con carota, sedano e cipolla già pronti! Non serve reidratarlo: mettilo direttamente in padella con olio, aggiungi mezzo bicchiere d'acqua e cuoci 10 minuti."
+
+- "Come uso il radicchio disidratato?" → "Il Radicchio Disidratato (30g, 2.5€) è semplicissimo! NON serve reidratarlo prima: metti 4-5 cucchiai d'olio in padella, aggiungi il radicchio, mescola, poi aggiungi mezzo bicchiere d'acqua e cuoci 10-15 minuti. È perfetto per risotti, pasta, o come contorno con gorgonzola e noci!"
+
 - "Mostrami i vostri risotti" → elenca tutti i 7 risotti con prezzi e caratteristiche
 
 Rispondi SEMPRE in italiano, sii conciso ma completo, formatta bene con a capo e elenchi puntati.`;
+
+        // Mostra lista risotti interattiva
+        function showRisottiList() {
+            let html = '<strong>🍚 Ecco tutti i nostri Risotti Biologici!</strong><br><br>';
+            html += 'Scegli quello che preferisci per avere la ricetta completa:<br><br>';
+            html += '<div class="product-selector">';
+            
+            risottiMalbosca.forEach((risotto, index) => {
+                html += `<button class="product-btn" onclick="selectRisotto(${index})">
+                    <span>${risotto.nome}</span>
+                    <span class="price">${risotto.prezzo}</span>
+                </button>`;
+            });
+            
+            html += '</div>';
+            
+            addMessage(html, 'bot');
+        }
+
+        // Seleziona un risotto e chiedi la ricetta
+        function selectRisotto(index) {
+            const risotto = risottiMalbosca[index];
+            const query = `Dammi la ricetta completa per il ${risotto.nome}`;
+            document.getElementById('userInput').value = query;
+            sendMessage();
+        }
 
         // Invia messaggio con chiamata a Claude API
         async function sendMessage() {
