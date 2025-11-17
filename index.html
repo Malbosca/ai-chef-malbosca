@@ -419,6 +419,26 @@
             display: block;
         }
 
+        /* Stile per pulsante Acquista Ora */
+        .buy-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white !important;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            margin-top: 10px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .buy-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
+        }
+
         @media (max-width: 768px) {
             .container {
                 height: 100vh;
@@ -534,7 +554,7 @@
         const risottiMalbosca = [
             {
                 nome: "Risotto con Mirtilli",
-                prezzo: "6.2€",
+                prezzo: "6.2 €",
                 peso: "250g",
                 ingredienti: "Riso biologico Italiano, mirtilli disidratati biologici",
                 vino: "vino rosso",
@@ -542,7 +562,7 @@
             },
             {
                 nome: "Risotto con Ortica",
-                prezzo: "3.9€",
+                prezzo: "3.9 €",
                 peso: "250g",
                 ingredienti: "Riso biologico Italiano, ortica disidratata biologica",
                 vino: "vino bianco",
@@ -550,7 +570,7 @@
             },
             {
                 nome: "Risotto con Pomodoro e Basilico",
-                prezzo: "4.3€",
+                prezzo: "4.3 €",
                 peso: "250g",
                 ingredienti: "Riso biologico Italiano, pomodoro disidratato biologico, basilico disidratato biologico",
                 vino: "vino bianco",
@@ -558,7 +578,7 @@
             },
             {
                 nome: "Risotto con Radicchio",
-                prezzo: "3.5€",
+                prezzo: "3.5 €",
                 peso: "250g",
                 ingredienti: "Riso carnaroli Pavese, radicchio disidratato",
                 vino: "vino rosso",
@@ -566,7 +586,7 @@
             },
             {
                 nome: "Risotto con Rapa Rossa",
-                prezzo: "3.5€",
+                prezzo: "3.5 €",
                 peso: "250g",
                 ingredienti: "Riso biologico Italiano, rapa rossa biologica Italiana",
                 vino: "vino bianco",
@@ -574,7 +594,7 @@
             },
             {
                 nome: "Risotto con Fragola",
-                prezzo: "3.6€",
+                prezzo: "3.6 €",
                 peso: "250g",
                 ingredienti: "Riso carnaroli Pavese, fragola disidratata",
                 vino: "vino bianco",
@@ -582,7 +602,7 @@
             },
             {
                 nome: "Risotto con Peperone di Voghera",
-                prezzo: "3.5€",
+                prezzo: "3.5 €",
                 peso: "250g",
                 ingredienti: "Riso carnaroli Pavese, Peperone di Voghera disidratato",
                 vino: "vino bianco",
@@ -593,7 +613,7 @@
         const zuppeMalbosca = [
             {
                 nome: "Minestrone di Verdure Bio",
-                prezzo: "6€",
+                prezzo: "6 €",
                 peso: "80g",
                 porzioni: 4,
                 ingredienti: "Zucca, Zucchina, Carota, Pomodoro, Verza, Erbette, Cipolla, Basilico",
@@ -601,7 +621,7 @@
             },
             {
                 nome: "Zuppa di Cavolo Nero e Cavolo Riccio",
-                prezzo: "4.5€",
+                prezzo: "4.5 €",
                 peso: "250g",
                 porzioni: 4,
                 ingredienti: "Farro monococco biologico, zucca disidratata, cavolo nero, cavolo riccio, porro",
@@ -614,8 +634,8 @@
                 nome: "Mandorle Dolci Siciliane",
                 tipo: "Frutta Secca",
                 formati: [
-                    { peso: "230g", prezzo: "6.1€" },
-                    { peso: "500g", prezzo: "11.2€" }
+                    { peso: "230g", prezzo: "6.1 €" },
+                    { peso: "500g", prezzo: "11.2 €" }
                 ],
                 caratteristiche: "Tostate, origine Sicilia"
             },
@@ -623,8 +643,8 @@
                 nome: "Noci Sgusciate",
                 tipo: "Frutta Secca",
                 formati: [
-                    { peso: "230g", prezzo: "6€" },
-                    { peso: "500g", prezzo: "11.5€" }
+                    { peso: "230g", prezzo: "6 €" },
+                    { peso: "500g", prezzo: "11.5 €" }
                 ],
                 caratteristiche: "Tostate, origine Italia",
                 link: "https://malbosca.it/prodotto/noci-sgusciate/"
@@ -633,8 +653,8 @@
                 nome: "Nocciole IGP Piemonte",
                 tipo: "Frutta Secca",
                 formati: [
-                    { peso: "230g", prezzo: "8.8€" },
-                    { peso: "500g", prezzo: "17.5€" }
+                    { peso: "230g", prezzo: "8.8 €" },
+                    { peso: "500g", prezzo: "17.5 €" }
                 ],
                 caratteristiche: "Blanches, calibro 14-15, senza pellicine",
                 link: "https://malbosca.it/prodotto/nocciole-igp-piemonte/"
@@ -647,13 +667,13 @@
 CATALOGO PRODOTTI MALBOSCA (da suggerire quando pertinente):
 
 🍚 RISOTTI BIOLOGICI PRONTI (250g, 4 porzioni, 18 min cottura):
-1. Risotto con Mirtilli Bio (6.2€) - https://malbosca.it/prodotto/risotto-con-mirtilli-disidratati/
-2. Risotto con Ortica Bio (3.9€) - https://malbosca.it/prodotto/risotto-con-ortica-disidratata/
-3. Risotto con Pomodoro e Basilico Bio (4.3€) - https://malbosca.it/prodotto/risotto-con-pomodoro-e-basilico/
-4. Risotto con Radicchio (3.5€) - https://malbosca.it/prodotto/risotto-con-radicchio/
-5. Risotto con Rapa Rossa Bio (3.5€) - https://malbosca.it/prodotto/risotto-con-rapa-rossa-disidratata/
-6. Risotto con Fragola (3.6€) - https://malbosca.it/prodotto/risotto-con-fragola-disidratata/
-7. Risotto con Peperone di Voghera (3.5€) - https://malbosca.it/prodotto/risotto-con-peperone-di-voghera/
+1. Risotto con Mirtilli Bio (6.2 €) - https://malbosca.it/prodotto/risotto-con-mirtilli-disidratati/
+2. Risotto con Ortica Bio (3.9 €) - https://malbosca.it/prodotto/risotto-con-ortica-disidratata/
+3. Risotto con Pomodoro e Basilico Bio (4.3 €) - https://malbosca.it/prodotto/risotto-con-pomodoro-e-basilico/
+4. Risotto con Radicchio (3.5 €) - https://malbosca.it/prodotto/risotto-con-radicchio/
+5. Risotto con Rapa Rossa Bio (3.5 €) - https://malbosca.it/prodotto/risotto-con-rapa-rossa-disidratata/
+6. Risotto con Fragola (3.6 €) - https://malbosca.it/prodotto/risotto-con-fragola-disidratata/
+7. Risotto con Peperone di Voghera (3.5 €) - https://malbosca.it/prodotto/risotto-con-peperone-di-voghera/
 
 **PREPARAZIONE STANDARD RISOTTI (18 minuti):**
 1. Versare un filo di olio (o burro) nella pentola
@@ -668,7 +688,7 @@ IMPORTANTE: Fornisci SEMPRE il link "🛒 Acquista ora: [URL]" dopo ogni ricetta
 
 🥘 ZUPPE E MINESTRONI:
 
-**Minestrone di Verdure Bio** (80g, 6€, 4 porzioni)
+**Minestrone di Verdure Bio** (80g, 6 €, 4 porzioni)
 Ingredienti: Zucca, Zucchina, Carota, Pomodoro, Verza, Erbette, Cipolla, Basilico
 Preparazione (45-50 min):
 1. Versare 1,5L acqua in pentola
@@ -676,16 +696,18 @@ Preparazione (45-50 min):
 3. Cuocere 45-50 minuti
 4. Servire con un filo di olio EVO
 Trucco del chef: È possibile aggiungere legumi o pasta corta a piacimento
-🛒 https://malbosca.it/prodotto/minestrone-di-verdure-biologiche/
 
-**Zuppa di Cavolo Nero e Cavolo Riccio** (250g, 4.5€, 4 porzioni)
+<a href="https://malbosca.it/prodotto/minestrone-di-verdure-biologiche/" class="buy-button" target="_blank">🛒 Acquista Ora</a>
+
+**Zuppa di Cavolo Nero e Cavolo Riccio** (250g, 4.5 €, 4 porzioni)
 Ingredienti: Farro monococco biologico, zucca disidratata, cavolo nero, cavolo riccio, porro
 Preparazione (30-40 min):
 1. Versare 1,5L acqua in pentola
 2. Aggiungere il contenuto della busta
 3. Cuocere 30-40 minuti
 4. Servire con un filo di olio EVO
-🛒 https://malbosca.it/prodotto/zuppa-di-cavolo-nero-e-cavolo-riccio/
+
+<a href="https://malbosca.it/prodotto/zuppa-di-cavolo-nero-e-cavolo-riccio/" class="buy-button" target="_blank">🛒 Acquista Ora</a>
 
 🥬 VERDURE DISIDRATATE - COME USARLE CORRETTAMENTE:
 **IMPORTANTE**: Le verdure disidratate NON si reidratano in acqua e poi si cuociono. Si cuocono DIRETTAMENTE con olio e acqua.
@@ -698,13 +720,13 @@ Preparazione (30-40 min):
 5. Lasciare sobbollire per 10-15 minuti fino a quando sono morbide
 
 Prodotti disponibili:
-- Radicchio Disidratato (30g, 2.5€) - https://malbosca.it/prodotto/radicchio-disidratato/
-- Peperone Disidratato Bio (30g, 2.9€) - https://malbosca.it/prodotto/peperone-disidratato-biologico/
-- Cipolla Disidratata Bio (30g, 3.3€) - https://malbosca.it/prodotto/cipolla-disidratata-biologica/
-- Pomodoro Disidratato Bio (30g, 2.9€) - https://malbosca.it/prodotto/pomodoro-disidratato-biologico/
-- Soffritto Bio (50g, 3.5€) - https://malbosca.it/prodotto/soffritto-classico-pronto/
+- Radicchio Disidratato (30g, 2.5 €) - https://malbosca.it/prodotto/radicchio-disidratato/
+- Peperone Disidratato Bio (30g, 2.9 €) - https://malbosca.it/prodotto/peperone-disidratato-biologico/
+- Cipolla Disidratata Bio (30g, 3.3 €) - https://malbosca.it/prodotto/cipolla-disidratata-biologica/
+- Pomodoro Disidratato Bio (30g, 2.9 €) - https://malbosca.it/prodotto/pomodoro-disidratato-biologico/
+- Soffritto Bio (50g, 3.5 €) - https://malbosca.it/prodotto/soffritto-classico-pronto/
 
-🍳 FRITTATE PRONTE (70g, 3€, 4 porzioni):
+🍳 FRITTATE PRONTE (70g, 3 €, 4 porzioni):
 - Frittata Cipolle e Patate Bio - https://malbosca.it/prodotto/frittata-di-cipolle-e-patate-biologiche/
 - Frittata Zucchine e Cipolle Bio - https://malbosca.it/prodotto/frittata-di-zucchine-e-cipolle-biologiche/
 
@@ -720,17 +742,17 @@ Preparazione (30 min):
 
 🌰 FRUTTA SECCA:
 **Mandorle Dolci Siciliane** - Tostate, origine Sicilia
-- 230g: 6.1€
-- 500g: 11.2€
+- 230g: 6.1 €
+- 500g: 11.2 €
 
 **Noci Sgusciate** - Tostate, origine Italia
-- 230g: 6€
-- 500g: 11.5€
+- 230g: 6 €
+- 500g: 11.5 €
 🛒 https://malbosca.it/prodotto/noci-sgusciate/
 
 **Nocciole IGP Piemonte** - Blanches, calibro 14-15, senza pellicine
-- 230g: 8.8€
-- 500g: 17.5€
+- 230g: 8.8 €
+- 500g: 17.5 €
 🛒 https://malbosca.it/prodotto/nocciole-igp-piemonte/
 
 Usi: snack, dolci, granola, pesto, gratinate
@@ -739,7 +761,7 @@ IL TUO COMPITO:
 1. Rispondi a QUALSIASI domanda culinaria
 2. Quando pertinente, suggerisci prodotti Malbosca
 3. Fornisci ricette dettagliate con TUTTI i passaggi dall'Excel
-4. Includi SEMPRE il link "🛒 Acquista ora: [URL]" dopo le ricette con prodotti Malbosca
+4. Includi SEMPRE il pulsante acquisto dopo le ricette con prodotti Malbosca nel formato: <a href="URL" class="buy-button" target="_blank">🛒 Acquista Ora</a>
 5. Segui ESATTAMENTE i procedimenti dall'Excel
 6. Spiega il metodo CORRETTO per le verdure disidratate
 
@@ -951,6 +973,8 @@ Rispondi in italiano, formatta bene con a capo ed emoji naturali.`;
             errorMessage.classList.remove('active');
             
             try {
+                console.log('Sending subscription request...', { name, email });
+                
                 const response = await fetch(`${CLOUDFLARE_WORKER_URL}/subscribe`, {
                     method: 'POST',
                     headers: {
@@ -962,7 +986,16 @@ Rispondi in italiano, formatta bene con a capo ed emoji naturali.`;
                     })
                 });
 
-                const responseData = await response.json();
+                console.log('Response status:', response.status);
+                
+                let responseData;
+                try {
+                    responseData = await response.json();
+                    console.log('Response data:', responseData);
+                } catch (e) {
+                    console.error('Failed to parse response:', e);
+                    throw new Error('Risposta dal server non valida');
+                }
                 
                 if (response.ok || responseData.success) {
                     emailCaptured = true;
@@ -974,11 +1007,13 @@ Rispondi in italiano, formatta bene con a capo ed emoji naturali.`;
                         addMessage('🎉 Perfetto! Riceverai presto le nostre ricette esclusive via email!', 'bot');
                     }, 1500);
                 } else {
-                    throw new Error(responseData.error || 'Errore nella registrazione');
+                    const errorMsg = responseData.error || responseData.message || 'Errore sconosciuto';
+                    console.error('Subscription failed:', errorMsg);
+                    throw new Error(errorMsg);
                 }
             } catch (error) {
-                console.error('Errore:', error);
-                showError('Errore nella registrazione. Riprova tra poco.');
+                console.error('Error in submitEmail:', error);
+                showError('Errore nella registrazione: ' + error.message);
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Ricevi le Ricette 🍳';
             }
