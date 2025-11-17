@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Chef Malbosca - Il Tuo Chef Personale Intelligente</title>
+    <title>AI Chef Malbosca - Il Tuo Chef Personale</title>
     <style>
         * {
             margin: 0;
@@ -216,19 +216,6 @@
             }
         }
 
-        .product-card {
-            background: #f0f8f4;
-            border-left: 4px solid #2ecc71;
-            padding: 12px;
-            margin: 10px 0;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-
-        .product-card strong {
-            color: #27ae60;
-        }
-
         @media (max-width: 768px) {
             .container {
                 height: 100vh;
@@ -261,19 +248,16 @@
         <div class="chat-container" id="chatContainer">
             <div class="message bot">
                 <div class="message-content">
-                    👋 Ciao! Sono il tuo AI Chef Malbosca intelligente!<br><br>
-                    Posso aiutarti a:<br>
-                    🥘 Preparare i nostri prodotti (risotti, minestroni, zuppe)<br>
-                    🍳 Creare ricette originali con i nostri ingredienti<br>
-                    💡 Suggerirti abbinamenti creativi<br><br>
-                    Cosa vuoi cucinare oggi?
+                    👋 Ciao! Sono il tuo AI Chef Malbosca!<br><br>
+                    Sono qui per aiutarti a scoprire ricette deliziose con i nostri prodotti biologici italiani.<br><br>
+                    Cosa posso fare per te oggi?
                 </div>
             </div>
-            <div class="quick-suggestions" id="suggestions">
+            <div class="quick-suggestions">
                 <button class="suggestion-btn" onclick="sendSuggestion('Voglio preparare un risotto')">🍚 Risotti</button>
                 <button class="suggestion-btn" onclick="sendSuggestion('Come preparo il minestrone?')">🥘 Minestrone</button>
-                <button class="suggestion-btn" onclick="sendSuggestion('Ricette con frutta secca')">🌰 Frutta Secca</button>
-                <button class="suggestion-btn" onclick="sendSuggestion('Come posso usare il peperone disidratato?')">🌶️ Verdure</button>
+                <button class="suggestion-btn" onclick="sendSuggestion('Cosa posso fare con le mandorle?')">🌰 Frutta Secca</button>
+                <button class="suggestion-btn" onclick="sendSuggestion('Sorprendimi con una ricetta!')">✨ Sorprendimi</button>
             </div>
             <div class="typing-indicator" id="typingIndicator">
                 <span></span>
@@ -294,312 +278,55 @@
     </div>
 
     <script>
-        // ⚠️ IMPORTANTE: Sostituisci questo URL con l'URL del tuo Cloudflare Worker
-        // Dopo aver deployato il worker, otterrai un URL tipo: https://ai-chef-malbosca.tuoaccount.workers.dev
-        const CLOUDFLARE_WORKER_URL = 'https://ai-chef-malbosca.aziendamalbosca.workers.dev';
+        // ⚠️ URL del Cloudflare Worker
+        const WORKER_URL = 'https://ai-chef-malbosca.aziendamalbosca.workers.dev';
 
         // Cronologia conversazione
         let conversationHistory = [];
 
-        // Database prodotti Malbosca AGGIORNATO con tutti i prodotti
-        const malboscaKnowledge = `
-# PRODOTTI MALBOSCA - DATABASE COMPLETO
+        // System prompt per Claude
+        const systemPrompt = `Sei AI Chef Malbosca, un assistente culinario esperto in prodotti biologici italiani.
 
-## RISOTTI PRONTI (7 Risotti Disponibili)
+PRODOTTI MALBOSCA:
 
-1. **Risotto con Mirtilli Biologici** 🫐
-   - Peso: 250g | Prezzo: 6.2€ | Porzioni: 4
-   - Ingredienti: Riso biologico Italiano, mirtilli disidratati biologici
-   - Tempo cottura: 18 minuti
-   - Preparazione:
-     1. Versare un filo di olio (o burro) nella pentola
-     2. Versare il contenuto della busta per far rosolare il riso
-     3. Sfumare con del vino rosso
-     4. Cominciate ad aggiungere brodo vegetale e lasciare cuocere
-     5. Aggiungere brodo man mano che viene assorbito
-     6. Portare il riso a cottura
-     7. Mantecare alla fine con una noce di burro e grana padano
-   - Link prodotto: https://malbosca.it/prodotto/risotto-con-mirtilli-disidratati/
+RISOTTI (7 disponibili):
+1. Risotto con Mirtilli Bio (250g - 6.2€)
+2. Risotto con Ortica Bio (250g - 3.9€)
+3. Risotto Pomodoro e Basilico Bio (250g - 4.3€)
+4. Risotto con Radicchio Bio (250g - 3.5€)
+5. Risotto con Rapa Rossa Bio (250g - 3.5€)
+6. Risotto con Fragola Bio (250g - 3.6€)
+7. Risotto Peperone di Voghera Bio (250g - 3.5€)
 
-2. **Risotto con Ortica Biologica** 🌿
-   - Peso: 250g | Prezzo: 3.9€ | Porzioni: 4
-   - Ingredienti: Riso biologico Italiano, ortica disidratata biologica
-   - Tempo cottura: 18 minuti
-   - Preparazione:
-     1. Versare un filo di olio (o burro) nella pentola
-     2. Versare il contenuto della busta per far rosolare il riso
-     3. Sfumare con del vino bianco
-     4. Cominciate ad aggiungere brodo vegetale e lasciare cuocere
-     5. Aggiungere brodo man mano che viene assorbito
-     6. Portare il riso a cottura
-     7. Mantecare alla fine con una noce di burro e grana padano
-   - Link prodotto: https://malbosca.it/prodotto/risotto-con-ortica-disidratata/
+ZUPPE E MINESTRONI:
+- Minestrone di Verdure Bio (80g - 6€, 4 porzioni)
+- Zuppa di Cavolo Nero e Cavolo Riccio (250g - 4.5€)
 
-3. **Risotto con Pomodoro e Basilico Biologici** 🍅
-   - Peso: 250g | Prezzo: 4.3€ | Porzioni: 4
-   - Ingredienti: Riso biologico Italiano, pomodoro disidratato biologico, basilico disidratato biologico
-   - Tempo cottura: 18 minuti
-   - Preparazione:
-     1. Versare un filo di olio (o burro) nella pentola
-     2. Versare il contenuto della busta per far rosolare il riso
-     3. Sfumare con del vino bianco
-     4. Cominciate ad aggiungere brodo vegetale e lasciare cuocere
-     5. Aggiungere brodo man mano che viene assorbito
-     6. Portare il riso a cottura
-     7. Mantecare alla fine con una noce di burro e grana padano
-   - Link prodotto: https://malbosca.it/prodotto/risotto-con-pomodoro-e-basilico/
+VERDURE DISIDRATATE:
+- Soffritto Classico Pronto (50g - 3.5€)
+- Radicchio Disidratato (30g - 2.5€)
+- Peperone Disidratato Bio (30g - 2.9€)
+- Cipolla Disidratata Bio (30g - 3.3€)
+- Pomodoro Disidratato Bio (30g - 2.9€)
 
-4. **Risotto con Radicchio** 🥬
-   - Peso: 250g | Prezzo: 3.5€ | Porzioni: 4
-   - Ingredienti: Riso carnaroli Pavese, radicchio disidratato
-   - Tempo cottura: 18 minuti
-   - Preparazione:
-     1. Versare un filo di olio (o burro) nella pentola
-     2. Versare il contenuto della busta per far rosolare il riso
-     3. Sfumare con del vino rosso
-     4. Cominciate ad aggiungere brodo vegetale e lasciare cuocere
-     5. Aggiungere brodo man mano che viene assorbito
-     6. Portare il riso a cottura
-     7. Mantecare alla fine con una noce di burro e grana padano
-   - Link prodotto: https://malbosca.it/prodotto/risotto-con-radicchio/
+FRITTATE PRONTE:
+- Frittata di Cipolle e Patate Bio (70g - 3€)
+- Frittata di Zucchine e Cipolle Bio (70g - 3€)
 
-5. **Risotto con Rapa Rossa Biologica** 🥕
-   - Peso: 250g | Prezzo: 3.5€ | Porzioni: 4
-   - Ingredienti: Riso biologico Italiano, rapa rossa biologica Italiana
-   - Tempo cottura: 18 minuti
-   - Preparazione:
-     1. Versare un filo di olio (o burro) nella pentola
-     2. Versare il contenuto della busta per far rosolare il riso
-     3. Sfumare con del vino rosso
-     4. Cominciate ad aggiungere brodo vegetale e lasciare cuocere
-     5. Aggiungere brodo man mano che viene assorbito
-     6. Portare il riso a cottura
-     7. Mantecare alla fine con una noce di burro e grana padano
-   - Link prodotto: https://malbosca.it/prodotto/risotto-con-rapa-rossa-disidratata/
+FRUTTA SECCA:
+- Mandorle Dolci Grezze Siciliane (230g - 6.1€ / 500g - 11.2€)
+- Noci Sgusciate Italiane (230g - 6€ / 500g - 11.5€)
+- Nocciole IGP Piemonte (230g - 8.8€ / 500g - 17.5€)
 
-6. **Risotto con Fragola** 🍓
-   - Peso: 250g | Prezzo: 3.6€ | Porzioni: 4
-   - Ingredienti: Riso carnaroli Pavese, fragola disidratata
-   - Tempo cottura: 18 minuti
-   - Preparazione:
-     1. Versare un filo di olio (o burro) nella pentola
-     2. Versare il contenuto della busta per far rosolare il riso
-     3. Sfumare con del vino rosso
-     4. Cominciate ad aggiungere brodo vegetale e lasciare cuocere
-     5. Aggiungere brodo man mano che viene assorbito
-     6. Portare il riso a cottura
-     7. Mantecare alla fine con una noce di burro e grana padano
-   - Link prodotto: https://malbosca.it/prodotto/risotto-con-fragola-disidratata/
+ISTRUZIONI:
+- Rispondi in italiano in modo amichevole e professionale
+- Se chiedono informazioni su prodotti, elencali TUTTI (es: tutti i 7 risotti)
+- Fornisci ricette dettagliate quando richieste
+- Suggerisci abbinamenti creativi
+- Usa emoji per rendere più accattivante
+- Link prodotti: https://malbosca.it/prodotto/[nome-prodotto]/
 
-7. **Risotto con Peperone di Voghera** 🌶️
-   - Peso: 250g | Prezzo: 3.5€ | Porzioni: 4
-   - Ingredienti: Riso carnaroli Pavese, Peperone di Voghera disidratato
-   - Tempo cottura: 18 minuti
-   - Preparazione:
-     1. Versare un filo di olio (o burro) nella pentola
-     2. Versare il contenuto della busta per far rosolare il riso
-     3. Sfumare con del vino rosso
-     4. Cominciate ad aggiungere brodo vegetale e lasciare cuocere
-     5. Aggiungere brodo man mano che viene assorbito
-     6. Portare il riso a cottura
-     7. Mantecare alla fine con una noce di burro e grana padano
-   - Link prodotto: https://malbosca.it/prodotto/risotto-con-peperone-di-voghera/
-
-## MINESTRONI E ZUPPE
-1. **Minestrone di Verdure Bio**
-   - Peso: 80g - Prezzo: 6€ - Porzioni: 4
-   - Ingredienti: Zucca, Zucchina, Carota, Pomodoro, Verza, Erbette, Cipolla, Basilico
-   - Tempo cottura: 45-50 minuti
-   - Preparazione:
-     1. Versare 1,5L acqua in pentola
-     2. Aggiungere verdure
-     3. Cuocere 45-50min
-     4. Servire con olio EVO
-   - Trucco: È possibile aggiungere legumi o pasta corta a piacimento
-   - Link: https://malbosca.it/prodotto/minestrone-di-verdure-biologiche/
-
-2. **Zuppa di Cavolo Nero e Cavolo Riccio**
-   - Peso: 250g - Prezzo: 4.5€ - Porzioni: 4
-   - Ingredienti: Farro monococco biologico, Zucca disidratata, Cavolo nero disidratato, Cavolo riccio disidratato, Porro disidratato
-   - Tempo cottura: 30-40 minuti
-   - Preparazione:
-     1. Versare 1,5L di acqua in pentola
-     2. Aggiungere il contenuto della busta
-     3. Cuocere per 30-40 minuti
-     4. Servire con un filo di olio EVO
-   - Nota: Questo è un prodotto PRONTO, non serve aggiungere altro
-   - Link prodotto: https://malbosca.it/prodotto/zuppa-di-cavolo-nero-e-cavolo-riccio/
-
-## SOFFRITTO E FRITTATE
-1. **Verdure per Soffritto Bio**
-   - Peso: 50g - Prezzo: 3.5€
-   - Ingredienti: Carota, Sedano, Cipolla
-   - Tempo cottura: 10 minuti
-   - Link: https://malbosca.it/prodotto/soffritto-classico-pronto/
-
-2. **Frittata di Cipolle e Patate Bio**
-   - Peso: 70g - Prezzo: 3€ - Porzioni: 4
-   - Link: https://malbosca.it/prodotto/frittata-di-cipolle-e-patate-biologiche/
-
-3. **Frittata di Zucchine e Cipolle Bio**
-   - Peso: 70g - Prezzo: 3€ - Porzioni: 4
-   - Link: https://malbosca.it/prodotto/frittata-di-zucchine-e-cipolle-biologiche/
-
-## VERDURE DISIDRATATE SINGOLE
-1. **Radicchio Disidratato**
-   - Peso: 30g - Prezzo: 2.5€
-   - Usi: Risotti, pasta, insalate cotte
-   - Abbinamenti: Gorgonzola, noci, aceto balsamico
-   - Link: https://malbosca.it/prodotto/radicchio-disidratato/
-
-2. **Peperone Disidratato Bio**
-   - Peso: 30g - Prezzo: 2.9€
-   - Usi: Risotti, sughi
-   - Link: https://malbosca.it/prodotto/peperone-disidratato-biologico/
-
-3. **Cipolla Disidratata Bio**
-   - Peso: 30g - Prezzo: 3.3€
-   - Usi: Sughi, soffritti
-   - Link: https://malbosca.it/prodotto/cipolla-disidratata-biologica/
-
-4. **Pomodoro Disidratato Bio**
-   - Peso: 30g - Prezzo: 2.9€
-   - Usi: Insalate, bruschette, condimenti vari
-   - Link: https://malbosca.it/prodotto/pomodoro-disidratato-biologico/
-
-## FRUTTA SECCA
-1. **Mandorle Dolci Grezze**
-   - Tipo: Frutta Secca
-   - Formati: 230g (6.1€) | 500g (11.2€)
-   - Origine: Sicilia, tostate
-   - Usi: Snack, dolci, granola, pesto, gratinate
-
-2. **Noci Sgusciate**
-   - Tipo: Frutta Secca
-   - Formati: 230g (6€) | 500g (11.5€)
-   - Origine: Italia, tostate
-   - Usi: Snack, dolci, granola, pesto, gratinate
-   - Link: https://malbosca.it/prodotto/noci-sgusciate/
-
-3. **Nocciole IGP Piemonte**
-   - Tipo: Frutta Secca
-   - Formati: 230g (8.8€) | 500g (17.5€)
-   - Caratteristiche: Blanches, calibro 14-15, senza pellicine
-   - Usi: Snack, dolci, granola, pesto, gratinate
-   - Link: https://malbosca.it/prodotto/nocciole-igp-piemonte/
-`;
-
-        const systemPrompt = `Sei AI Chef Malbosca, un assistente culinario esperto e amichevole specializzato in prodotti biologici italiani.
-
-Il tuo compito è:
-1. Aiutare gli utenti a scoprire come usare i prodotti Malbosca
-2. Suggerire ricette creative e dettagliate
-3. Spiegare come preparare risotti, minestroni, zuppe
-4. Essere conversazionale, amichevole e utile
-
-REGOLA FONDAMENTALE SUI PRODOTTI PRONTI:
-- I prodotti come Risotti, Minestroni, Zuppe e Frittate Malbosca sono GIÀ COMPLETI e pronti da cucinare
-- NON inventare ricette che aggiungono altri ingredienti a questi prodotti
-- Mostra SOLO le informazioni del prodotto e la preparazione indicata nel database
-- Se l'utente chiede "come preparo X", mostra le istruzioni ESATTE dal database
-- NON aggiungere soffritti, verdure extra, o altri ingredienti non previsti
-
-REGOLE IMPORTANTI PER I RISOTTI:
-- Abbiamo 7 RISOTTI DIVERSI disponibili
-- Quando l'utente chiede "risotti" o "risotto", mostra TUTTI i 7 risotti in un elenco numerato come questo:
-  
-  🍚 <strong>Ecco tutti i nostri 7 risotti biologici:</strong><br><br>
-  1. Risotto con Mirtilli (6.2€) 🫐<br>
-  2. Risotto con Ortica (3.9€) 🌿<br>
-  3. Risotto con Pomodoro e Basilico (4.3€) 🍅<br>
-  4. Risotto con Radicchio (3.5€) 🥬<br>
-  5. Risotto con Rapa Rossa (3.5€) 🥕<br>
-  6. Risotto con Fragola (3.6€) 🍓<br>
-  7. Risotto con Peperone di Voghera (3.5€) 🌶️<br><br>
-  Quale ti incuriosisce di più? Dimmi il numero o il nome! 😊
-
-- Quando l'utente sceglie un risotto (es: "il 3", "quello con mirtilli"), mostra le info COMPLETE:
-  * Nome con emoji
-  * Peso, Prezzo, Porzioni
-  * Ingredienti
-  * Tempo di cottura
-  * Preparazione step-by-step numerata ESATTAMENTE come nel database
-  * Link al prodotto
-
-REGOLE PER LE ZUPPE E MINESTRONI:
-- Le zuppe Malbosca sono PRODOTTI PRONTI
-- Mostra le istruzioni di preparazione ESATTE dal database
-- NON aggiungere ingredienti extra o procedure non previste
-- La preparazione è semplice: acqua + contenuto busta + cuocere + condire
-
-REGOLE PER I LINK:
-- I link devono essere SEMPRE incorporati nel testo "🛒 Acquista qui" in questo formato:
-  <a href="URL_COMPLETO" target="_blank">🛒 Acquista qui</a>
-- NON mostrare MAI l'URL per esteso, deve essere solo il testo cliccabile
-- Il link deve aprirsi in una nuova scheda (target="_blank")
-
-QUANDO SUGGERIRE RICETTE CREATIVE:
-- Solo per ingredienti singoli (frutta secca, verdure disidratate singole)
-- NON per prodotti già pronti (risotti, zuppe, minestroni)
-- Se l'utente chiede "frutta secca" o "mandorle" o "noci", allora sì puoi suggerire ricette creative
-- Se l'utente chiede "peperone disidratato" (prodotto singolo), puoi suggerire 2-3 ricette creative
-
-ALTRE REGOLE:
-- Usa emoji per rendere il messaggio più accattivante
-- Mantieni le risposte concise ma complete
-- Formatta le risposte in HTML con <br> per gli a capo e <strong> per enfatizzare
-- Usa le card HTML per i prodotti quando mostri info tecniche
-
-Ecco il database completo dei prodotti Malbosca:
-
-${malboscaKnowledge}`;
-
-        // Funzione per chiamare il Cloudflare Worker
-        async function callClaudeAPI(userMessage) {
-            // Aggiungi messaggio utente alla cronologia
-            conversationHistory.push({
-                role: "user",
-                content: userMessage
-            });
-
-            try {
-                const response = await fetch(CLOUDFLARE_WORKER_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        messages: conversationHistory,
-                        system: systemPrompt
-                    })
-                });
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                
-                if (data.error) {
-                    throw new Error(data.error.message || 'Errore sconosciuto');
-                }
-
-                const assistantMessage = data.content[0].text;
-                
-                // Aggiungi risposta alla cronologia
-                conversationHistory.push({
-                    role: "assistant",
-                    content: assistantMessage
-                });
-
-                return assistantMessage;
-
-            } catch (error) {
-                console.error('Errore API:', error);
-                return `Mi dispiace, c'è stato un errore nella comunicazione. 😊<br><br>Dettagli tecnici: ${error.message}<br><br>Verifica che il Cloudflare Worker sia configurato correttamente e che l'URL sia aggiornato in questo file.`;
-            }
-        }
+Sei entusiasta dei prodotti biologici italiani e ami condividere la passione per la cucina!`;
 
         // Gestione invio messaggi
         async function sendMessage() {
@@ -612,14 +339,49 @@ ${malboscaKnowledge}`;
             addMessage(message, 'user');
             input.value = '';
 
+            // Aggiungi alla cronologia
+            conversationHistory.push({
+                role: 'user',
+                content: message
+            });
+
             // Mostra indicatore di digitazione
             showTyping();
 
-            // Chiama Claude API tramite Cloudflare Worker
-            const response = await callClaudeAPI(message);
-            
-            hideTyping();
-            addMessage(response, 'bot');
+            try {
+                // Chiamata al Worker Cloudflare
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        messages: conversationHistory,
+                        system: systemPrompt
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Errore HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+                const botMessage = data.content[0].text;
+
+                // Aggiungi alla cronologia
+                conversationHistory.push({
+                    role: 'assistant',
+                    content: botMessage
+                });
+
+                hideTyping();
+                addMessage(botMessage, 'bot');
+
+            } catch (error) {
+                console.error('Errore:', error);
+                hideTyping();
+                addMessage('Mi dispiace, c\'è stato un errore nella comunicazione. 😊<br><br>Dettagli tecnici: ' + error.message + '<br><br>Verifica che il Cloudflare Worker sia configurato correttamente e che l\'URL sia aggiornato in questo file.', 'bot');
+            }
         }
 
         function sendSuggestion(text) {
@@ -637,10 +399,7 @@ ${malboscaKnowledge}`;
             contentDiv.innerHTML = text;
             
             messageDiv.appendChild(contentDiv);
-            
-            // Inserisci prima del typing indicator
-            const typingIndicator = document.getElementById('typingIndicator');
-            chatContainer.insertBefore(messageDiv, typingIndicator);
+            chatContainer.appendChild(messageDiv);
             
             // Scroll to bottom
             chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -649,8 +408,6 @@ ${malboscaKnowledge}`;
         function showTyping() {
             document.getElementById('typingIndicator').classList.add('active');
             document.getElementById('sendBtn').disabled = true;
-            const chatContainer = document.getElementById('chatContainer');
-            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
         function hideTyping() {
