@@ -281,8 +281,13 @@
         // ⚠️ URL del Cloudflare Worker
         const WORKER_URL = 'https://ai-chef-malbosca.aziendamalbosca.workers.dev';
 
+        // Configurazione cattura email
+        const SHOW_EMAIL_FORM_AFTER = 3;
+
         // Cronologia conversazione
         let conversationHistory = [];
+        let messageCount = 0;
+        let emailCaptured = false;
 
         // System prompt per Claude
         const systemPrompt = `Sei AI Chef Malbosca, un assistente culinario esperto in prodotti biologici italiani.
@@ -338,6 +343,7 @@ Sei entusiasta dei prodotti biologici italiani e ami condividere la passione per
             // Aggiungi messaggio utente
             addMessage(message, 'user');
             input.value = '';
+            messageCount++;
 
             // Aggiungi alla cronologia
             conversationHistory.push({
@@ -376,6 +382,11 @@ Sei entusiasta dei prodotti biologici italiani e ami condividere la passione per
 
                 hideTyping();
                 addMessage(botMessage, 'bot');
+
+                // Mostra form email dopo N messaggi
+                if (!emailCaptured && messageCount >= SHOW_EMAIL_FORM_AFTER) {
+                    setTimeout(() => showEmailForm(), 1000);
+                }
 
             } catch (error) {
                 console.error('Errore:', error);
@@ -425,6 +436,64 @@ Sei entusiasta dei prodotti biologici italiani e ami condividere la passione per
         window.onload = function() {
             document.getElementById('userInput').focus();
         };
+
+        // Mostra form cattura email
+        function showEmailForm() {
+            const formHtml = `
+                <div style="background: #e8f5e9; padding: 20px; border-radius: 15px; margin: 15px 0; border-left: 4px solid #2ecc71;">
+                    <h3 style="color: #27ae60; margin: 0 0 15px 0; font-size: 18px;">📧 Ricevi Ricette Esclusive!</h3>
+                    <p style="margin: 0 0 15px 0; color: #666; font-size: 14px;">Iscriviti alla newsletter per ricevere ricette biologiche, consigli e offerte speciali!</p>
+                    <input type="email" id="brevoEmail" placeholder="La tua email" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px; margin-bottom: 10px; box-sizing: border-box;">
+                    <input type="text" id="brevoName" placeholder="Il tuo nome (opzionale)" style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px; margin-bottom: 15px; box-sizing: border-box;">
+                    <button onclick="submitEmailForm()" style="width: 100%; background: #2ecc71; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer;">Iscriviti Gratis</button>
+                </div>
+            `;
+            addMessage(formHtml, 'bot');
+        }
+
+        // Submit form a Brevo tramite Worker (SICURO)
+        async function submitEmailForm() {
+            const email = document.getElementById('brevoEmail').value.trim();
+            const name = document.getElementById('brevoName').value.trim();
+
+            if (!email || !email.includes('@')) {
+                alert('Inserisci un\'email valida!');
+                return;
+            }
+
+            // Disabilita form
+            document.getElementById('brevoEmail').disabled = true;
+            document.getElementById('brevoName').disabled = true;
+
+            try {
+                // Chiama il Worker che gestisce Brevo in modo sicuro
+                const response = await fetch(WORKER_URL + '/subscribe', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        name: name
+                    })
+                });
+
+                if (response.ok) {
+                    emailCaptured = true;
+                    addMessage('✅ Perfetto! Ti invieremo ricette esclusive via email! 🎉<br><br>Continua pure a farmi domande! 😊', 'bot');
+                    
+                    // Nascondi form
+                    const forms = document.querySelectorAll('[style*="e8f5e9"]');
+                    forms.forEach(f => f.style.display = 'none');
+                } else {
+                    throw new Error('Errore iscrizione');
+                }
+            } catch (error) {
+                console.error('Errore iscrizione:', error);
+                addMessage('😊 Grazie per l\'interesse! Ti iscriveremo presto alla newsletter!', 'bot');
+                emailCaptured = true;
+            }
+        }
     </script>
 </body>
 </html>
