@@ -216,106 +216,6 @@
             }
         }
 
-        .product-card {
-            background: #f0f8f4;
-            border-left: 4px solid #2ecc71;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 8px;
-            font-size: 15px;
-            line-height: 1.8;
-        }
-
-        .product-card strong {
-            color: #27ae60;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .recipe-title {
-            font-size: 18px;
-            font-weight: bold;
-            color: #27ae60;
-            margin-bottom: 15px;
-            display: block;
-        }
-
-        .recipe-section {
-            margin: 15px 0;
-        }
-
-        .recipe-section strong {
-            color: #27ae60;
-            font-size: 16px;
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .recipe-steps {
-            padding-left: 10px;
-        }
-
-        .recipe-steps div {
-            margin-bottom: 8px;
-            line-height: 1.6;
-        }
-
-        .buy-link {
-            display: inline-block;
-            background: #2ecc71;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            text-decoration: none;
-            margin-top: 15px;
-            transition: all 0.3s;
-        }
-
-        .buy-link:hover {
-            background: #27ae60;
-            transform: translateY(-2px);
-        }
-
-        .risotto-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 15px 0;
-        }
-
-        .risotto-card {
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-        }
-
-        .risotto-card:hover {
-            border-color: #2ecc71;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.2);
-        }
-
-        .risotto-card .risotto-emoji {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        .risotto-card .risotto-name {
-            font-weight: bold;
-            color: #27ae60;
-            margin-bottom: 8px;
-            font-size: 15px;
-        }
-
-        .risotto-card .risotto-price {
-            color: #666;
-            font-size: 14px;
-        }
-
         /* Modale Email Capture */
         .modal-overlay {
             display: none;
@@ -503,6 +403,10 @@
                 font-size: 12px;
                 padding: 6px 12px;
             }
+
+            .modal-content {
+                padding: 30px 20px;
+            }
         }
     </style>
 </head>
@@ -517,15 +421,18 @@
             <div class="message bot">
                 <div class="message-content">
                     👋 Ciao! Sono il tuo AI Chef Malbosca!<br><br>
-                    Sono qui per aiutarti a scoprire ricette deliziose con i nostri prodotti biologici italiani.<br><br>
-                    Cosa posso fare per te oggi?
+                    Posso aiutarti con:<br>
+                    🥘 Ricette con i nostri prodotti biologici<br>
+                    🍳 Suggerimenti su qualsiasi altra ricetta<br>
+                    💡 Consigli culinari personalizzati<br><br>
+                    Cosa vuoi cucinare oggi?
                 </div>
             </div>
             <div class="quick-suggestions">
-                <button class="suggestion-btn" onclick="sendSuggestion('Come preparo il minestrone?')">🥘 Minestrone</button>
-                <button class="suggestion-btn" onclick="showRisottiGrid()">🍚 Risotti</button>
-                <button class="suggestion-btn" onclick="sendSuggestion('Cosa posso fare con le mandorle?')">🌰 Frutta Secca</button>
-                <button class="suggestion-btn" onclick="sendSuggestion('Sorprendimi con una ricetta!')">✨ Sorprendimi</button>
+                <button class="suggestion-btn" onclick="sendSuggestion('Mostrami i vostri risotti')">🍚 I vostri Risotti</button>
+                <button class="suggestion-btn" onclick="sendSuggestion('Come preparo lo spezzatino?')">🍲 Spezzatino</button>
+                <button class="suggestion-btn" onclick="sendSuggestion('Ricetta con le mandorle')">🌰 Mandorle</button>
+                <button class="suggestion-btn" onclick="sendSuggestion('Sorprendimi!')">✨ Sorprendimi</button>
             </div>
             <div class="typing-indicator" id="typingIndicator">
                 <span></span>
@@ -538,7 +445,7 @@
             <input 
                 type="text" 
                 id="userInput" 
-                placeholder="Scrivi cosa vuoi cucinare o quale prodotto hai..." 
+                placeholder="Scrivi cosa vuoi cucinare..." 
                 onkeypress="handleKeyPress(event)"
             >
             <button onclick="sendMessage()" id="sendBtn">Invia</button>
@@ -586,664 +493,125 @@
         const CLOUDFLARE_WORKER_URL = 'https://ai-chef-malbosca.emanuele-alberti154.workers.dev';
         let messageCount = 0;
         let emailCaptured = false;
+        let conversationHistory = [];
 
-        // Database prodotti Malbosca (COMPLETO CON TUTTI I 7 RISOTTI)
-        const malboscaProducts = {
-            prodottiPronti: [
-                {
-                    nome: "Minestrone di Verdure Bio",
-                    categoria: "Zuppe",
-                    peso: "80g",
-                    prezzo: "6€",
-                    porzioni: 4,
-                    ingredienti: "Zucca, Zucchina, Carota, Pomodoro, Verza, Erbette, Cipolla, Basilico",
-                    tempoCottura: "45-50 min",
-                    preparazione: [
-                        "Versare 1,5L acqua in pentola",
-                        "Aggiungere le verdure disidratate",
-                        "Cuocere per 45-50 minuti mescolando di tanto in tanto",
-                        "Servire caldo con un filo di olio extravergine d'oliva"
-                    ],
-                    trucchi: "È possibile aggiungere legumi o pasta corta a piacimento.",
-                    link: "https://malbosca.it/prodotto/minestrone-di-verdure-biologiche/"
-                },
-                {
-                    nome: "Zuppa di Cavolo Nero e Cavolo Riccio",
-                    categoria: "Zuppe",
-                    peso: "250g",
-                    prezzo: "4.5€",
-                    porzioni: 4,
-                    ingredienti: "Farro monococco biologico, Zucca disidratata, Cavolo nero, Cavolo riccio, Porro",
-                    tempoCottura: "30-40 min",
-                    preparazione: [
-                        "Versare 1,5L acqua in pentola",
-                        "Aggiungere il contenuto della busta",
-                        "Cuocere per 30-40 minuti mescolando occasionalmente",
-                        "Servire con un filo di olio extravergine d'oliva"
-                    ],
-                    link: "https://malbosca.it/prodotto/zuppa-di-cavolo-nero-e-cavolo-riccio/"
-                },
-                {
-                    nome: "Verdure per Soffritto Bio",
-                    categoria: "Basi",
-                    peso: "50g",
-                    prezzo: "3.5€",
-                    ingredienti: "Carota, Sedano, Cipolla",
-                    tempoCottura: "10 min",
-                    preparazione: [
-                        "Scaldare 2 cucchiai di olio in una padella",
-                        "Aggiungere 2 cucchiaini di soffritto disidratato",
-                        "Mescolare bene per distribuire nell'olio",
-                        "Aggiungere mezzo bicchiere d'acqua",
-                        "Cuocere a fuoco basso per 10 minuti"
-                    ],
-                    link: "https://malbosca.it/prodotto/soffritto-classico-pronto/"
-                },
-                {
-                    nome: "Frittata di Cipolle e Patate Bio",
-                    categoria: "Frittate",
-                    peso: "70g",
-                    prezzo: "3€",
-                    porzioni: 4,
-                    ingredienti: "Cipolle disidratate biologiche, Patate disidratate biologiche",
-                    tempoCottura: "30 min",
-                    preparazione: [
-                        "Mettere in pentola antiaderente 4-5 cucchiai d'olio",
-                        "Versare il contenuto della busta",
-                        "Mescolare a fuoco basso",
-                        "Ricoprire con acqua le verdure",
-                        "Lasciare sobbollire per 30 minuti fino a quando sono morbide",
-                        "Sbattere 5 uova con parmigiano e sale a piacere",
-                        "Versare le uova nella padella",
-                        "Cuocere la frittata girando a metà cottura"
-                    ],
-                    link: "https://malbosca.it/prodotto/frittata-di-cipolle-e-patate-biologiche/"
-                },
-                {
-                    nome: "Frittata di Zucchine e Cipolle Bio",
-                    categoria: "Frittate",
-                    peso: "70g",
-                    prezzo: "3€",
-                    porzioni: 4,
-                    ingredienti: "Zucchine disidratate biologiche, Cipolle disidratate biologiche",
-                    tempoCottura: "30 min",
-                    preparazione: [
-                        "Mettere in pentola antiaderente 4-5 cucchiai d'olio",
-                        "Versare il contenuto della busta",
-                        "Mescolare a fuoco basso",
-                        "Ricoprire con acqua le verdure",
-                        "Lasciare sobbollire per 30 minuti fino a quando sono morbide",
-                        "Sbattere 5 uova con parmigiano e sale a piacere",
-                        "Versare le uova nella padella",
-                        "Cuocere la frittata girando a metà cottura"
-                    ],
-                    link: "https://malbosca.it/prodotto/frittata-di-zucchine-e-cipolle-biologiche/"
-                },
-                // TUTTI I 7 RISOTTI
-                {
-                    nome: "Risotto con Mirtilli Bio",
-                    categoria: "Risotti",
-                    peso: "250g",
-                    prezzo: "6.2€",
-                    porzioni: 4,
-                    ingredienti: "Riso biologico italiano, Mirtilli disidratati biologici",
-                    tempoCottura: "18 min",
-                    preparazione: [
-                        "Versare un filo di olio (o burro) nella pentola",
-                        "Versare il contenuto della busta per far rosolare il riso",
-                        "Sfumare con del vino rosso",
-                        "Cominciare ad aggiungere brodo vegetale e lasciare cuocere",
-                        "Aggiungere brodo man mano che viene assorbito",
-                        "Portare il riso a cottura",
-                        "Mantecare alla fine con una noce di burro e grana padano"
-                    ],
-                    link: "https://malbosca.it/prodotto/risotto-con-mirtilli-disidratati/"
-                },
-                {
-                    nome: "Risotto con Ortica Bio",
-                    categoria: "Risotti",
-                    peso: "250g",
-                    prezzo: "3.9€",
-                    porzioni: 4,
-                    ingredienti: "Riso biologico italiano, Ortica disidratata biologica",
-                    tempoCottura: "18 min",
-                    preparazione: [
-                        "Versare un filo di olio (o burro) nella pentola",
-                        "Versare il contenuto della busta per far rosolare il riso",
-                        "Sfumare con del vino bianco",
-                        "Cominciare ad aggiungere brodo vegetale e lasciare cuocere",
-                        "Aggiungere brodo man mano che viene assorbito",
-                        "Portare il riso a cottura",
-                        "Mantecare alla fine con una noce di burro e grana padano"
-                    ],
-                    link: "https://malbosca.it/prodotto/risotto-con-ortica-disidratata/"
-                },
-                {
-                    nome: "Risotto con Pomodoro e Basilico Bio",
-                    categoria: "Risotti",
-                    peso: "250g",
-                    prezzo: "4.3€",
-                    porzioni: 4,
-                    ingredienti: "Riso biologico italiano, Pomodoro disidratato biologico, Basilico disidratato biologico",
-                    tempoCottura: "18 min",
-                    preparazione: [
-                        "Versare un filo di olio (o burro) nella pentola",
-                        "Versare il contenuto della busta per far rosolare il riso",
-                        "Sfumare con del vino bianco",
-                        "Cominciare ad aggiungere brodo vegetale e lasciare cuocere",
-                        "Aggiungere brodo man mano che viene assorbito",
-                        "Portare il riso a cottura",
-                        "Mantecare alla fine con una noce di burro e grana padano"
-                    ],
-                    link: "https://malbosca.it/prodotto/risotto-con-pomodoro-e-basilico/"
-                },
-                {
-                    nome: "Risotto con Radicchio",
-                    categoria: "Risotti",
-                    peso: "250g",
-                    prezzo: "3.5€",
-                    porzioni: 4,
-                    ingredienti: "Riso carnaroli Pavese, Radicchio disidratato",
-                    tempoCottura: "18 min",
-                    preparazione: [
-                        "Versare un filo di olio (o burro) nella pentola",
-                        "Versare il contenuto della busta per far rosolare il riso",
-                        "Sfumare con del vino bianco",
-                        "Cominciare ad aggiungere brodo vegetale e lasciare cuocere",
-                        "Aggiungere brodo man mano che viene assorbito",
-                        "Portare il riso a cottura",
-                        "Mantecare alla fine con una noce di burro e grana padano"
-                    ],
-                    link: "https://malbosca.it/prodotto/risotto-con-radicchio/"
-                },
-                {
-                    nome: "Risotto con Rapa Rossa Bio",
-                    categoria: "Risotti",
-                    peso: "250g",
-                    prezzo: "3.5€",
-                    porzioni: 4,
-                    ingredienti: "Riso biologico italiano, Rapa rossa biologica italiana",
-                    tempoCottura: "18 min",
-                    preparazione: [
-                        "Versare un filo di olio (o burro) nella pentola",
-                        "Versare il contenuto della busta per far rosolare il riso",
-                        "Sfumare con del vino bianco",
-                        "Cominciare ad aggiungere brodo vegetale e lasciare cuocere",
-                        "Aggiungere brodo man mano che viene assorbito",
-                        "Portare il riso a cottura",
-                        "Mantecare alla fine con una noce di burro e grana padano"
-                    ],
-                    link: "https://malbosca.it/prodotto/risotto-con-rapa-rossa-disidratata/"
-                },
-                {
-                    nome: "Risotto con Fragola",
-                    categoria: "Risotti",
-                    peso: "250g",
-                    prezzo: "3.6€",
-                    porzioni: 4,
-                    ingredienti: "Riso carnaroli Pavese, Fragola disidratata",
-                    tempoCottura: "18 min",
-                    preparazione: [
-                        "Versare un filo di olio (o burro) nella pentola",
-                        "Versare il contenuto della busta per far rosolare il riso",
-                        "Sfumare con del vino bianco",
-                        "Cominciare ad aggiungere brodo vegetale e lasciare cuocere",
-                        "Aggiungere brodo man mano che viene assorbito",
-                        "Portare il riso a cottura",
-                        "Mantecare alla fine con una noce di burro e grana padano"
-                    ],
-                    link: "https://malbosca.it/prodotto/risotto-con-fragola-disidratata/"
-                },
-                {
-                    nome: "Risotto con Peperone di Voghera",
-                    categoria: "Risotti",
-                    peso: "250g",
-                    prezzo: "3.5€",
-                    porzioni: 4,
-                    ingredienti: "Riso carnaroli Pavese, Peperone di Voghera disidratato",
-                    tempoCottura: "18 min",
-                    preparazione: [
-                        "Versare un filo di olio (o burro) nella pentola",
-                        "Versare il contenuto della busta per far rosolare il riso",
-                        "Sfumare con del vino bianco",
-                        "Cominciare ad aggiungere brodo vegetale e lasciare cuocere",
-                        "Aggiungere brodo man mano che viene assorbito",
-                        "Portare il riso a cottura",
-                        "Mantecare alla fine con una noce di burro e grana padano"
-                    ],
-                    link: "https://malbosca.it/prodotto/risotto-con-peperone-di-voghera/"
-                }
-            ],
-            verdureDisidratate: [
-                {
-                    nome: "Radicchio Disidratato",
-                    peso: "30g",
-                    prezzo: "2.5€",
-                    usiConsigliati: "Risotti, pasta, insalate cotte",
-                    comeUsarla: [
-                        "Mettere in pentola 4-5 cucchiai d'olio",
-                        "Versare il radicchio",
-                        "Mescolare a fuoco basso",
-                        "Aggiungere mezzo bicchiere d'acqua",
-                        "Lasciare sobbollire 10-15 minuti"
-                    ],
-                    abbinamenti: "Gorgonzola, noci, aceto balsamico",
-                    link: "https://malbosca.it/prodotto/radicchio-disidratato/"
-                },
-                {
-                    nome: "Peperone Disidratato Bio",
-                    peso: "30g",
-                    prezzo: "2.9€",
-                    usiConsigliati: "Risotti, sughi",
-                    comeUsarla: [
-                        "Mettere in pentola 4-5 cucchiai d'olio",
-                        "Versare il peperone",
-                        "Mescolare a fuoco basso",
-                        "Aggiungere mezzo bicchiere d'acqua",
-                        "Lasciare sobbollire 10-15 minuti"
-                    ],
-                    link: "https://malbosca.it/prodotto/peperone-disidratato-biologico/"
-                },
-                {
-                    nome: "Cipolla Disidratata Bio",
-                    peso: "30g",
-                    prezzo: "3.3€",
-                    usiConsigliati: "Sughi, soffritti",
-                    comeUsarla: [
-                        "Mettere in pentola 4-5 cucchiai d'olio",
-                        "Versare la cipolla",
-                        "Mescolare a fuoco basso",
-                        "Aggiungere mezzo bicchiere d'acqua",
-                        "Lasciare sobbollire 10-15 minuti"
-                    ],
-                    link: "https://malbosca.it/prodotto/cipolla-disidratata-biologica/"
-                },
-                {
-                    nome: "Pomodoro Disidratato Bio",
-                    peso: "30g",
-                    prezzo: "2.9€",
-                    usiConsigliati: "Insalate, bruschette, condimenti vari",
-                    link: "https://malbosca.it/prodotto/pomodoro-disidratato-biologico/"
-                }
-            ],
-            fruttaSecca: [
-                {
-                    nome: "Mandorle Dolci Grezze",
-                    tipo: "Frutta Secca",
-                    pesi: ["230g (6.1€)", "500g (11.2€)"],
-                    caratteristiche: "Tostate, origine Sicilia",
-                    usiConsigliati: "Snack, dolci, granola, pesto, gratinate",
-                    conservazione: "Luogo fresco e asciutto, chiudere bene dopo l'uso"
-                },
-                {
-                    nome: "Noci Sgusciate",
-                    tipo: "Frutta Secca",
-                    pesi: ["230g (6€)", "500g (11.5€)"],
-                    caratteristiche: "Tostate, origine Italia",
-                    usiConsigliati: "Snack, dolci, granola, pesto, gratinate",
-                    conservazione: "Luogo fresco e asciutto, chiudere bene dopo l'uso",
-                    link: "https://malbosca.it/prodotto/noci-sgusciate/"
-                },
-                {
-                    nome: "Nocciole IGP Piemonte",
-                    tipo: "Frutta Secca",
-                    pesi: ["230g (8.8€)", "500g (17.5€)"],
-                    caratteristiche: "Blanches, calibro 14-15, senza pellicine",
-                    usiConsigliati: "Snack, dolci, granola, pesto, gratinate",
-                    conservazione: "Luogo fresco e asciutto, chiudere bene dopo l'uso",
-                    link: "https://malbosca.it/prodotto/nocciole-igp-piemonte/"
-                }
-            ]
-        };
+        // System prompt con conoscenza dei prodotti Malbosca
+        const SYSTEM_PROMPT = `Sei l'AI Chef Malbosca, un esperto chef italiano specializzato in cucina biologica e prodotti di qualità.
 
-        // Funzione per mostrare la griglia dei risotti
-        function showRisottiGrid() {
-            const risotti = malboscaProducts.prodottiPronti.filter(p => p.categoria === "Risotti");
-            
-            // Emoji per ogni risotto
-            const risottiEmoji = {
-                "Mirtilli": "🫐",
-                "Ortica": "🌿",
-                "Pomodoro": "🍅",
-                "Radicchio": "🥬",
-                "Rapa": "🥕",
-                "Fragola": "🍓",
-                "Peperone": "🌶️"
-            };
-            
-            let html = `<span class="recipe-title">🍚 Scegli il tuo Risotto Preferito!</span>`;
-            html += `<div class="risotto-grid">`;
-            
-            risotti.forEach((r, index) => {
-                // Trova emoji corrispondente
-                let emoji = "🍚";
-                for (let key in risottiEmoji) {
-                    if (r.nome.includes(key)) {
-                        emoji = risottiEmoji[key];
-                        break;
-                    }
-                }
-                
-                html += `<div class="risotto-card" onclick="selectRisotto(${index})">`;
-                html += `<div class="risotto-emoji">${emoji}</div>`;
-                html += `<div class="risotto-name">${r.nome.replace('Risotto con ', '').replace(' Bio', '')}</div>`;
-                html += `<div class="risotto-price">${r.prezzo}</div>`;
-                html += `</div>`;
-            });
-            
-            html += `</div>`;
-            html += `<div style="text-align: center; margin-top: 15px; color: #666; font-size: 14px;">`;
-            html += `👆 Clicca su un risotto per vedere la ricetta completa`;
-            html += `</div>`;
-            
-            addMessage(html, 'bot');
-        }
+CATALOGO PRODOTTI MALBOSCA (da suggerire quando pertinente):
 
-        // Funzione per selezionare un risotto specifico
-        function selectRisotto(index) {
-            const risotti = malboscaProducts.prodottiPronti.filter(p => p.categoria === "Risotti");
-            const selectedRisotto = risotti[index];
-            
-            // Mostra la ricetta completa
-            const recipe = formatRecipe(selectedRisotto);
-            addMessage(recipe, 'bot');
-        }
+🍚 RISOTTI BIOLOGICI PRONTI (250g, 18 min cottura):
+- Risotto con Mirtilli Bio (6.2€) - riso italiano + mirtilli disidratati
+- Risotto con Ortica Bio (3.9€) - riso italiano + ortica disidratata
+- Risotto con Pomodoro e Basilico Bio (4.3€)
+- Risotto con Radicchio (3.5€) - riso carnaroli Pavese
+- Risotto con Rapa Rossa Bio (3.5€)
+- Risotto con Fragola (3.6€)
+- Risotto con Peperone di Voghera (3.5€)
 
-        // Funzione per formattare la ricetta in modo leggibile
-        function formatRecipe(product) {
-            let html = `<span class="recipe-title">🍽️ ${product.nome}</span>`;
-            
-            html += `<div class="product-card">`;
-            html += `<strong>📦 Prodotto:</strong> ${product.peso} - ${product.prezzo}<br>`;
-            html += `<strong>🥬 Ingredienti:</strong> ${product.ingredienti}<br>`;
-            html += `<strong>⏱️ Tempo di cottura:</strong> ${product.tempoCottura}<br>`;
-            if (product.porzioni) {
-                html += `<strong>🍽️ Porzioni:</strong> ${product.porzioni}`;
-            }
-            html += `</div>`;
-            
-            html += `<div class="recipe-section">`;
-            html += `<strong>👨‍🍳 Preparazione:</strong>`;
-            html += `<div class="recipe-steps">`;
-            product.preparazione.forEach((step, index) => {
-                html += `<div>${index + 1}. ${step}</div>`;
-            });
-            html += `</div>`;
-            html += `</div>`;
-            
-            if (product.trucchi) {
-                html += `<div class="recipe-section">`;
-                html += `<strong>💡 Trucco del chef:</strong> ${product.trucchi}`;
-                html += `</div>`;
-            }
-            
-            html += `<a href="${product.link}" target="_blank" class="buy-link">🛒 Acquista qui</a>`;
-            
-            return html;
-        }
+Preparazione risotti: rosolare in olio/burro, sfumare con vino bianco (rosso per mirtilli), aggiungere brodo gradualmente, mantecare con burro e grana.
 
-        // Funzione per generare risposta AI
-        function generateAIResponse(userMessage) {
-            const msg = userMessage.toLowerCase();
+🥘 ZUPPE E MINESTRONI:
+- Minestrone di Verdure Bio (80g, 6€, 4 porzioni) - ingredienti: zucca, zucchina, carota, pomodoro, verza, erbette, cipolla, basilico. Cottura: 45-50 min in 1.5L acqua. Trucco: aggiungere legumi o pasta.
+- Zuppa di Cavolo Nero e Riccio (250g, 4.5€, 4 porzioni) - farro monococco, zucca, cavolo nero/riccio, porro. Cottura: 30-40 min.
 
-            // MINESTRONE
-            if (msg.includes('minestrone')) {
-                const minestrone = malboscaProducts.prodottiPronti[0];
-                return formatRecipe(minestrone);
-            }
+🥬 VERDURE DISIDRATATE:
+- Soffritto Bio (50g, 3.5€) - carota, sedano, cipolla
+- Radicchio Disidratato (30g, 2.5€) - ottimo con gorgonzola, noci, aceto balsamico
+- Peperone Disidratato Bio (30g, 2.9€)
+- Cipolla Disidratata Bio (30g, 3.3€)
+- Pomodoro Disidratato Bio (30g, 2.9€)
 
-            // ZUPPA o FARRO
-            if (msg.includes('zuppa') || msg.includes('farro') || msg.includes('cavolo')) {
-                const zuppa = malboscaProducts.prodottiPronti[1];
-                return formatRecipe(zuppa);
-            }
+🍳 FRITTATE PRONTE (70g, 3€):
+- Frittata Cipolle e Patate Bio
+- Frittata Zucchine e Cipolle Bio
+Preparazione: reidratare in padella 30 min, aggiungere 5 uova sbattute con parmigiano.
 
-            // RISOTTI - Gestiti dalla griglia interattiva
-            if (msg.includes('risott') && !msg.includes('mirtill') && !msg.includes('ortica') && 
-                !msg.includes('pomodoro') && !msg.includes('radicchio') && !msg.includes('rapa') && 
-                !msg.includes('fragola') && !msg.includes('peperone')) {
-                
-                // Mostra la griglia interattiva
-                setTimeout(() => showRisottiGrid(), 100);
-                return `<span class="recipe-title">🍚 Ecco i nostri Risotti Biologici!</span>
-                    <div style="color: #666; margin-top: 10px;">
-                    Sto preparando la selezione per te... 👨‍🍳
-                    </div>`;
-            }
+🌰 FRUTTA SECCA:
+- Mandorle Dolci Siciliane (230g: 6.1€ / 500g: 11.2€) - tostate
+- Noci Italiane (230g: 6€ / 500g: 11.5€) - tostate
+- Nocciole IGP Piemonte (230g: 8.8€ / 500g: 17.5€) - blanches calibro 14-15
 
-            // RISOTTI SPECIFICI
-            if (msg.includes('mirtill')) {
-                return formatRecipe(malboscaProducts.prodottiPronti.find(p => p.nome.includes('Mirtilli')));
-            }
-            if (msg.includes('ortica')) {
-                return formatRecipe(malboscaProducts.prodottiPronti.find(p => p.nome.includes('Ortica')));
-            }
-            if (msg.includes('pomodoro') && msg.includes('risott')) {
-                return formatRecipe(malboscaProducts.prodottiPronti.find(p => p.nome.includes('Pomodoro')));
-            }
-            if (msg.includes('radicchio') && msg.includes('risott')) {
-                return formatRecipe(malboscaProducts.prodottiPronti.find(p => p.nome.includes('Radicchio')));
-            }
-            if (msg.includes('rapa')) {
-                return formatRecipe(malboscaProducts.prodottiPronti.find(p => p.nome.includes('Rapa')));
-            }
-            if (msg.includes('fragola')) {
-                return formatRecipe(malboscaProducts.prodottiPronti.find(p => p.nome.includes('Fragola')));
-            }
-            if (msg.includes('peperone') || msg.includes('voghera')) {
-                return formatRecipe(malboscaProducts.prodottiPronti.find(p => p.nome.includes('Peperone')));
-            }
+LINK PRODOTTI: https://malbosca.it/prodotto/[nome-prodotto]/
 
-            // SOFFRITTO
-            if (msg.includes('soffritto') || msg.includes('base')) {
-                const soffritto = malboscaProducts.prodottiPronti[2];
-                let html = `<span class="recipe-title">🧅 ${soffritto.nome}</span>`;
-                html += `<div class="product-card">`;
-                html += `<strong>📦 Prodotto:</strong> ${soffritto.peso} - ${soffritto.prezzo}<br>`;
-                html += `<strong>🥬 Ingredienti:</strong> ${soffritto.ingredienti}`;
-                html += `</div>`;
-                html += `<div class="recipe-section"><strong>👨‍🍳 Come usarlo:</strong>`;
-                html += `<div class="recipe-steps">`;
-                soffritto.preparazione.forEach((step, index) => {
-                    html += `<div>${index + 1}. ${step}</div>`;
-                });
-                html += `</div></div>`;
-                html += `<div class="recipe-section"><strong>💡 Perfetto per:</strong> Ragù, Risotti, Sughi, Brasati, Zuppe</div>`;
-                html += `<a href="${soffritto.link}" target="_blank" class="buy-link">🛒 Acquista qui</a>`;
-                return html;
-            }
+IL TUO COMPITO:
+1. Rispondi a QUALSIASI domanda culinaria (spezzatino, carbonara, dolci, ecc.)
+2. Quando pertinente, suggerisci prodotti Malbosca come alternativa o complemento
+3. Fornisci ricette dettagliate con ingredienti, dosi e procedimento
+4. Sii amichevole, professionale e appassionato di cucina italiana
+5. Usa emoji in modo naturale ma senza esagerare
+6. Se chiede specificamente sui prodotti Malbosca, dai info complete con prezzi e link
 
-            // FRITTATE
-            if (msg.includes('frittata') || msg.includes('uova')) {
-                let html = `<span class="recipe-title">🍳 Le nostre Frittate Pronte!</span>`;
-                html += `<div class="recipe-section">`;
-                html += `<strong>1. Frittata di Cipolle e Patate</strong> (70g - 3€)<br>`;
-                html += `<strong>2. Frittata di Zucchine e Cipolle</strong> (70g - 3€)`;
-                html += `</div>`;
-                html += `<div class="recipe-section"><strong>👨‍🍳 Preparazione:</strong>`;
-                html += `<div class="recipe-steps">`;
-                const frittata = malboscaProducts.prodottiPronti[3];
-                frittata.preparazione.forEach((step, index) => {
-                    html += `<div>${index + 1}. ${step}</div>`;
-                });
-                html += `</div></div>`;
-                html += `<br>Quale preferisci? 😊`;
-                return html;
-            }
+Esempi:
+- "Come preparo lo spezzatino?" → dai ricetta completa dello spezzatino, poi suggerisci: "Per un soffritto perfetto, prova il nostro Soffritto Bio (3.5€) con carota, sedano e cipolla già pronti!"
+- "Ricetta con mandorle" → dai 2-3 ricette, poi: "Le nostre Mandorle Dolci Siciliane (230g, 6.1€) sono perfette, già tostate!"
+- "Mostrami i vostri risotti" → elenca tutti i 7 risotti con prezzi e caratteristiche
 
-            // FRUTTA SECCA
-            if (msg.includes('mandorle') || msg.includes('noci') || msg.includes('nocciole') || msg.includes('frutta secca')) {
-                let html = `<span class="recipe-title">🌰 La nostra Frutta Secca Premium!</span>`;
-                html += `<div class="recipe-section">`;
-                html += `<strong>🥜 Mandorle Dolci Siciliane</strong><br>`;
-                html += `Tostate, 230g (6.1€) o 500g (11.2€)<br><br>`;
-                html += `<strong>🌰 Noci Italiane Sgusciate</strong><br>`;
-                html += `Tostate, 230g (6€) o 500g (11.5€)<br><br>`;
-                html += `<strong>🟤 Nocciole IGP Piemonte</strong><br>`;
-                html += `Blanches calibro 14-15, 230g (8.8€) o 500g (17.5€)`;
-                html += `</div>`;
-                html += `<div class="recipe-section"><strong>💡 Idee di utilizzo:</strong><br>`;
-                html += `• Snack salutare<br>`;
-                html += `• Dolci e biscotti<br>`;
-                html += `• Granola fatta in casa<br>`;
-                html += `• Pesto e condimenti<br>`;
-                html += `• Gratinate e insalate`;
-                html += `</div>`;
-                return html;
-            }
+Rispondi SEMPRE in italiano, sii conciso ma completo, formatta bene con a capo e elenchi puntati.`;
 
-            // SORPRESA
-            if (msg.includes('sorprend') || msg.includes('originale') || msg.includes('diverso')) {
-                return `<span class="recipe-title">✨ Pasta al Radicchio e Noci</span>
-                    <div class="recipe-section">
-                    <strong>🥬 Ingredienti:</strong><br>
-                    • Radicchio Disidratato Malbosca<br>
-                    • Noci Sgusciate Malbosca<br>
-                    • Gorgonzola DOP<br>
-                    • Pasta corta (penne o rigatoni)<br>
-                    • Panna fresca
-                    </div>
-                    <div class="recipe-section">
-                    <strong>👨‍🍳 Preparazione:</strong>
-                    <div class="recipe-steps">
-                    <div>1. Cuoci la pasta al dente</div>
-                    <div>2. Reidrata il radicchio in padella con olio e acqua (10 min)</div>
-                    <div>3. Aggiungi gorgonzola e panna</div>
-                    <div>4. Trita le noci e aggiungile</div>
-                    <div>5. Manteca la pasta nel condimento</div>
-                    </div>
-                    </div>
-                    <br>Il contrasto tra l'amaro del radicchio e la dolcezza delle noci è spettacolare! 🎉`;
-            }
-
-            // RISPOSTA GENERICA
-            return `<span class="recipe-title">🧑‍🍳 Benvenuto!</span>
-                <div class="recipe-section">
-                Posso aiutarti con ricette usando:<br><br>
-                <strong>🥘 Zuppe e Minestroni</strong><br>
-                • Minestrone di Verdure Bio<br>
-                • Zuppa di Cavolo Nero e Riccio<br><br>
-                <strong>🍚 7 Risotti Biologici</strong><br>
-                • Mirtilli, Ortica, Pomodoro<br>
-                • Radicchio, Rapa Rossa, Fragola<br>
-                • Peperone di Voghera<br><br>
-                <strong>🌰 Frutta Secca</strong><br>
-                • Mandorle, Noci, Nocciole<br><br>
-                <strong>🥬 Verdure Disidratate</strong><br>
-                • Radicchio, Peperone, Cipolla<br><br>
-                <strong>🍳 Frittate Pronte</strong>
-                </div>
-                <br>Cosa ti piacerebbe preparare oggi? 😊`;
-        }
-
-        // Gestione invio messaggi
-        function sendMessage() {
+        // Invia messaggio con chiamata a Claude API
+        async function sendMessage() {
             const input = document.getElementById('userInput');
             const message = input.value.trim();
             
             if (message === '') return;
 
+            // Aggiungi messaggio utente
             addMessage(message, 'user');
             input.value = '';
 
-            // Incrementa contatore messaggi
+            // Incrementa contatore
             messageCount++;
             
-            // Mostra modale email dopo 3 messaggi (solo se non già catturata)
+            // Mostra modale dopo 3 messaggi
             if (messageCount === 3 && !emailCaptured) {
-                setTimeout(() => {
-                    showEmailModal();
-                }, 2000); // Aspetta 2 secondi dopo la terza risposta
+                setTimeout(() => showEmailModal(), 2000);
             }
 
+            // Mostra typing indicator
             showTyping();
 
-            setTimeout(() => {
-                hideTyping();
-                const response = generateAIResponse(message);
-                addMessage(response, 'bot');
-            }, 1500);
-        }
+            // Aggiungi a cronologia
+            conversationHistory.push({
+                role: 'user',
+                content: message
+            });
 
-        // Mostra modale email
-        function showEmailModal() {
-            document.getElementById('emailModal').classList.add('active');
-        }
-
-        // Chiudi modale email
-        function closeEmailModal() {
-            document.getElementById('emailModal').classList.remove('active');
-        }
-
-        // Invia email a Brevo tramite Cloudflare Worker
-        async function submitEmail(event) {
-            event.preventDefault();
-            
-            const name = document.getElementById('userName').value.trim();
-            const email = document.getElementById('userEmail').value.trim();
-            const submitBtn = document.getElementById('submitBtn');
-            const errorMessage = document.getElementById('errorMessage');
-            
-            // Validazione base
-            if (!name || !email) {
-                showError('Per favore compila tutti i campi');
-                return;
-            }
-            
-            if (!validateEmail(email)) {
-                showError('Inserisci un indirizzo email valido');
-                return;
-            }
-            
-            // Disabilita il pulsante durante l'invio
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Invio in corso...';
-            errorMessage.classList.remove('active');
-            
             try {
-                const response = await fetch(`${CLOUDFLARE_WORKER_URL}/subscribe`, {
+                // Chiamata al Cloudflare Worker
+                const response = await fetch(CLOUDFLARE_WORKER_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        email: email,
-                        name: name
+                        system: SYSTEM_PROMPT,
+                        messages: conversationHistory
                     })
                 });
-                
-                if (response.ok) {
-                    emailCaptured = true;
-                    submitBtn.textContent = '✓ Registrato!';
-                    submitBtn.style.background = '#27ae60';
-                    
-                    // Mostra messaggio di successo
-                    setTimeout(() => {
-                        closeEmailModal();
-                        addMessage('🎉 Perfetto! Riceverai presto le nostre ricette esclusive via email!', 'bot');
-                    }, 1500);
-                } else {
-                    throw new Error('Errore nella registrazione');
+
+                if (!response.ok) {
+                    throw new Error('Errore nella risposta del server');
                 }
+
+                const data = await response.json();
+                const botResponse = data.content[0].text;
+
+                // Aggiungi risposta a cronologia
+                conversationHistory.push({
+                    role: 'assistant',
+                    content: botResponse
+                });
+
+                // Mostra risposta
+                hideTyping();
+                addMessage(botResponse, 'bot');
+
             } catch (error) {
                 console.error('Errore:', error);
-                showError('Errore nella registrazione. Riprova tra poco.');
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Ricevi le Ricette 🍳';
+                hideTyping();
+                addMessage('Mi dispiace, ho avuto un problema tecnico. Riprova tra poco! 😅', 'bot');
             }
-        }
-
-        // Valida formato email
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
-
-        // Mostra messaggio di errore
-        function showError(message) {
-            const errorElement = document.getElementById('errorMessage');
-            errorElement.textContent = message;
-            errorElement.classList.add('active');
         }
 
         function sendSuggestion(text) {
@@ -1258,7 +626,13 @@
             
             const contentDiv = document.createElement('div');
             contentDiv.className = 'message-content';
-            contentDiv.innerHTML = text;
+            
+            // Converti markdown-style in HTML semplice
+            let formattedText = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n/g, '<br>');
+            
+            contentDiv.innerHTML = formattedText;
             
             messageDiv.appendChild(contentDiv);
             chatContainer.appendChild(messageDiv);
@@ -1282,10 +656,83 @@
             }
         }
 
+        // Gestione modale email
+        function showEmailModal() {
+            document.getElementById('emailModal').classList.add('active');
+        }
+
+        function closeEmailModal() {
+            document.getElementById('emailModal').classList.remove('active');
+        }
+
+        async function submitEmail(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('userName').value.trim();
+            const email = document.getElementById('userEmail').value.trim();
+            const submitBtn = document.getElementById('submitBtn');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            if (!name || !email) {
+                showError('Per favore compila tutti i campi');
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                showError('Inserisci un indirizzo email valido');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Invio in corso...';
+            errorMessage.classList.remove('active');
+            
+            try {
+                const response = await fetch(`${CLOUDFLARE_WORKER_URL}/subscribe`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        name: name
+                    })
+                });
+                
+                if (response.ok) {
+                    emailCaptured = true;
+                    submitBtn.textContent = '✓ Registrato!';
+                    submitBtn.style.background = '#27ae60';
+                    
+                    setTimeout(() => {
+                        closeEmailModal();
+                        addMessage('🎉 Perfetto! Riceverai presto le nostre ricette esclusive via email!', 'bot');
+                    }, 1500);
+                } else {
+                    throw new Error('Errore nella registrazione');
+                }
+            } catch (error) {
+                console.error('Errore:', error);
+                showError('Errore nella registrazione. Riprova tra poco.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Ricevi le Ricette 🍳';
+            }
+        }
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.classList.add('active');
+        }
+
         window.onload = function() {
             document.getElementById('userInput').focus();
             
-            // Chiudi modale cliccando fuori
             document.getElementById('emailModal').addEventListener('click', function(e) {
                 if (e.target === this) {
                     closeEmailModal();
